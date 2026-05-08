@@ -183,9 +183,16 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('ag', ag))
     app.add_handler(CommandHandler('telx', telx))
     app.add_handler(CommandHandler('osiptel', osiptel))
-    print("Bot con Token CODART corriendo...")
+    
+    import asyncio
+from aiohttp import web
 
-# Servidor web async para Render
+async def handle(request):
+    return web.Response(text="Bot online")
+
+async def main():
+    print("Bot con Token CODART corriendo...")
+    
     webapp = web.Application()
     webapp.add_routes([web.get('/', handle)])
     runner = web.AppRunner(webapp)
