@@ -1,8 +1,11 @@
+import os
+import asyncio
 import requests
 import json
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from aiohttp import web
 
 # Tokens
 BOT_TOKEN = "8714125008:AAGnNawfd0A_mVoZStJsrASu1bNylaYvJOg"
@@ -181,21 +184,23 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('telx', telx))
     app.add_handler(CommandHandler('osiptel', osiptel))
     print("Bot con Token CODART corriendo...")
-import os
-from threading import Thread
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Bot online')
-
-def run_server():
+# Servidor web async para Render
+    webapp = web.Application()
+    webapp.add_routes([web.get('/', handle)])
+    runner = web.AppRunner(webapp)
+    await runner.setup()
     port = int(os.environ.get('PORT', 10000))
-    server = HTTPServer(('0.0.0.0', port), Handler)
-    server.serve_forever()
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+    print("Servidor web iniciado")
+    
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    
+    while True:
+        await asyncio.sleep(3600)
 
-Thread(target=run_server).start()
-
-app.run_polling()
+if __name__ == '__main__':
+    asyncio.run(main())
