@@ -9,11 +9,12 @@ from aiohttp import web
 
 # Tokens
 BOT_TOKEN = "8714125008:AAGnNawfd0A_mVoZStJsrASu1bNylaYvJOg"
-API_TOKEN = "94f30484e79c3073cc4e01667f63960eaac4a6ddb04fc59e7f6b7ea012f52c11" # Tu token de CODART
+API_TOKEN = os.environ.get("API_PERU_TOKEN")
+ # Tu token de CODART.
 
-BASE_URL = "https://docs.consultasperu.com/~gitbook/mcp/api"
+BASE_URL = "https://api.consultasperu.com/api/v1/query"
 TIMEOUT = 60
-LOG_FILE = "consultas_codart.txt"
+LOG_FILE = "consultas_PERU.txt"
 
 # Headers con el token de CODART
 HEADERS = {
@@ -27,22 +28,23 @@ def guardar_log(comando, parametro, resultado):
         f.write(f"\n{'='*60}\nFECHA: {fecha}\nCOMANDO: {comando} {parametro}\n")
         f.write(f"RESULTADO:\n{json.dumps(resultado, indent=2, ensure_ascii=False)}\n{'='*60}\n")
 
-def api_request(endpoint):
-    """Ahora usa el token en los headers"""
+def consulta_api(type_document, document_number):
+    """Función corregida para ConsultasPeru - usa POST"""
+    headers = {"Content-Type": "application/json"}
+    body = {
+        "token": API_PERU_TOKEN,
+        "type_document": type_document,  # "dni" o "ruc"
+        "document_number": document_number
+    }
     try:
-        url = f"{BASE_URL}/{endpoint}"
-        response = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
-
-        # Si el token está mal, la API tira 401
-        if response.status_code == 401:
-            return {"error": "Token de API inválido o expirado"}
-        elif response.status_code == 429:
-            return {"error": "Límite de consultas alcanzado"}
-
-        data = response.json()
-        return data if data.get("success") else None
+        r = requests.post(BASE_URL, headers=headers, json=body, timeout=15)
+        data = r.json()
+        if r.status_code == 200 and data.get("success") == True:
+            return data.get("data")
+        else:
+            return {"error": data.get("message", "Error en API pe mano")}
     except Exception as e:
-        print(f"Error API: {e}")
+        return {"error": f"API caída o sin saldo: {e} 3"}
         return None
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
