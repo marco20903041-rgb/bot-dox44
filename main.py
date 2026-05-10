@@ -1,4 +1,5 @@
 import os
+import httpx
 import asyncio
 import requests
 import json
@@ -6,6 +7,7 @@ from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 from aiohttp import web
+
 
 # Tokens
 BOT_TOKEN = "8714125008:AAGnNawfd0A_mVoZStJsrASu1bNylaYvJOg"
@@ -28,7 +30,7 @@ def guardar_log(comando, parametro, resultado):
         f.write(f"\n{'='*60}\nFECHA: {fecha}\nCOMANDO: {comando} {parametro}\n")
         f.write(f"RESULTADO:\n{json.dumps(resultado, indent=2, ensure_ascii=False)}\n{'='*60}\n")
 
-def consulta_api(type_document, document_number):
+async def consulta_api(type_document, document_number):
     """Función corregida para ConsultasPeru - usa POST"""
     headers = {"Content-Type": "application/json"}
     body = {
@@ -120,7 +122,7 @@ async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     dni_num = context.args[0]
     msg = await update.message.reply_text("🔍 Consultando RENIEC...")
-    data = api_request(f"reniec/dni/{dni_num}")
+    data = consulta_api(f"reniec/dni/{dni_num}")
 
     if data and "error" not in data:
         r = data["result"]
