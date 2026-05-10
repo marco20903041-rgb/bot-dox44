@@ -183,9 +183,6 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('ag', ag))
     app.add_handler(CommandHandler('telx', telx))
     app.add_handler(CommandHandler('osiptel', osiptel))
-    
-    import asyncio
-from aiohttp import web
 
 async def handle(request):
     return web.Response(text="Bot online")
