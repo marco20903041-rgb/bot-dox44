@@ -13,9 +13,7 @@ from  flask import Flask
 
 
 # Tokens
-BOT_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1hcmNvMjA5MDMwNDFAZ21haWwuY29tIn0.czP-vmTPvH_F8KSBSSAKNLRUmL10aJEY3sV_as3etWU
-
-"
+BOT_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1hcmNvMjA5MDMwNDFAZ21haWwuY29tIn0.czP-vmTPvH_F8KSBSSAKNLRUmL10aJEY3sV_as3etWU""
 API_TOKEN = os.environ.get("API_PERU_TOKEN")
  # Tu token de CODART.
 
