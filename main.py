@@ -13,11 +13,13 @@ from  flask import Flask
 
 
 # Tokens
-BOT_TOKEN = "8714125008:AAGnNawfd0A_mVoZStJsrASu1bNylaYvJOg"
+BOT_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im1hcmNvMjA5MDMwNDFAZ21haWwuY29tIn0.czP-vmTPvH_F8KSBSSAKNLRUmL10aJEY3sV_as3etWU
+
+"
 API_TOKEN = os.environ.get("API_PERU_TOKEN")
  # Tu token de CODART.
 
-BASE_URL = "https://api.consultasperu.com/api/v1/query"
+BASE_URL = "https://dniruc.apiseru.com/api/v1 /dni/{numero}"
 TIMEOUT = 60
 LOG_FILE = "consultas_PERU.txt"
 
@@ -189,7 +191,7 @@ async def osiptel(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await msg.edit_text(f"```json\n{json.dumps(data['result'], indent=2, ensure_ascii=False)}```", parse_mode='Markdown')
     else:
         await msg.edit_text(f"❌ {data.get('error', 'Sin líneas registradas')}")
-        
+
 telegram_app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 telegram_app.add_handler(CommandHandler('start', start))
