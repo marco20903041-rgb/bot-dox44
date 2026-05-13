@@ -2,6 +2,7 @@ import os
 import httpx
 import asyncio
 import json
+import threading
 from datetime import datetime
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -12,9 +13,8 @@ from telegram.ext import (
     ContextTypes
 )
 
-from aiohttp import web
 from flask import Flask
-
+from aiohttp import web
 # =====================================================
 # TOKENS
 # =====================================================
@@ -104,6 +104,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
 
     mensaje = get_message(update)
+    if mensaje is None:
+        return
+
     try:
         with open("yo.jpg", "rb") as foto:
             await mensaje.reply_photo(
@@ -216,11 +219,13 @@ def main():
     app.add_handler(CommandHandler("ruc", ruc))
     app.add_handler(CommandHandler("telx", telx))
     app.add_handler(CallbackQueryHandler(button_handler))
-
-    sync def main():
-    print("Bot con Token CODART corriendo...")
     
-    TOKEN = os.environ["TOKEN"]
+        app.run_polling()
+
+print("Bot con Token CODART corriendo...")
+
+TOKEN = os.environ["TOKEN"]
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -228,14 +233,21 @@ app = Flask(__name__)
 def home():
     return "Bot activo 24/7"
 
+# Responder mensajes
 @bot.message_handler(func=lambda m: True)
+def responder(m):
     bot.reply_to(m, f"Me dijiste: {m.text}")
 
+# Ejecutar bot
 def run_bot():
     bot.infinity_polling()
 
 if __name__ == "__main__":
     # Inicia el bot en segundo plano
     threading.Thread(target=run_bot, daemon=True).start()
-    # Inicia el servidor web para que Render no lo mate
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
+    # Servidor web para Render
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+    )
