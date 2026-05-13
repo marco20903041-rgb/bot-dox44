@@ -37,7 +37,7 @@ async def consulta_api(type_document, document_number):
     """Función corregida  para ConsultasPeru - usa POST"""
     headers = {"Content-Type": "application/json"}
     body = {
-        "token": API_PERU_TOKEN,
+        "token":API_TOKEN ,
         "type_document": type_document,  # "dni" o "ruc"
         "document_number": document_number
     }
