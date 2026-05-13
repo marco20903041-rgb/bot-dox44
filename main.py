@@ -1,12 +1,15 @@
 import os
 import httpx
 import asyncio
+import telebot
+import threading
 import requests
 import json
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 from aiohttp import web
+from  flask import Flask
 
 
 # Tokens
@@ -31,7 +34,7 @@ def guardar_log(comando, parametro, resultado):
         f.write(f"RESULTADO:\n{json.dumps(resultado, indent=2, ensure_ascii=False)}\n{'='*60}\n")
 
 async def consulta_api(type_document, document_number):
-    """Función corregida para ConsultasPeru - usa POST"""
+    """Función corregida  para ConsultasPeru - usa POST"""
     headers = {"Content-Type": "application/json"}
     body = {
         "token": API_PERU_TOKEN,
@@ -194,21 +197,23 @@ async def handle(request):
 async def main():
     print("Bot con Token CODART corriendo...")
     
-    webapp = web.Application()
-    webapp.add_routes([web.get('/', handle)])
-    runner = web.AppRunner(webapp)
-    await runner.setup()
-    port = int(os.environ.get('PORT', 10000))
-    site = web.TCPSite(runner, '0.0.0.0', port)
-    await site.start()
-    print("Servidor web iniciado")
-    
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling()
-    
-    while True:
-        await asyncio.sleep(3600)
+    TOKEN = os.environ["TOKEN"]
+bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+@app.route('/')
+def home():
+    return "Bot activo 24/7"
+
+@bot.message_handler(func=lambda m: True)
+def responder(m):
+    bot.reply_to(m, f"Me dijiste: {m.text}")
+
+def run_bot():
+    bot.infinity_polling()
+
+if __name__ == "__main__":
+    # Inicia el bot en segundo plano
+    threading.Thread(target=run_bot, daemon=True).start()
+    # Inicia el servidor web para que Render no lo mate
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
