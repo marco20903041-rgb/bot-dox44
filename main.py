@@ -33,6 +33,9 @@ def guardar_log(comando, parametro, resultado):
         f.write(f"\n{'='*60}\nFECHA: {fecha}\nCOMANDO: {comando} {parametro}\n")
         f.write(f"RESULTADO:\n{json.dumps(resultado, indent=2, ensure_ascii=False)}\n{'='*60}\n")
 
+def get_message(update: Update):
+    return update.effective_message or update.message
+
 async def consulta_api(type_document, document_number):
     """Función corregida  para ConsultasPeru - usa POST"""
     headers = {"Content-Type": "application/json"}
@@ -68,10 +71,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Selecciona o usa comandos:
     """
     
+    mensaje = get_message(update)
     # Manda tu foto + texto + botones
     try:
         with open('yo.jpg', 'rb') as foto:
-            await update.message.reply_photo(
+            await mensaje.reply_photo(
                 photo=foto,
                 caption=texto,
                 reply_markup=reply_markup,
@@ -79,7 +83,7 @@ Selecciona o usa comandos:
             )
     except FileNotFoundError:
         # Si no encuentra la foto, manda solo texto
-        await update.message.reply_text(
+        await mensaje.reply_text(
             texto + "\n\n⚠️ Falta yo.jpg",
             reply_markup=reply_markup,
             parse_mode='Markdown'
@@ -99,11 +103,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 1. API SUNAT RUC
 async def ruc(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args or len(context.args[0])!= 11:
-        await update.message.reply_text("❌ Uso: /ruc 20538856674")
+    mensaje = get_message(update)
+    if not context.args or len(context.args[0]) != 11:
+        await mensaje.reply_text("❌ Uso: /ruc 20538856674")
         return
     ruc_num = context.args[0]
-    msg = await update.message.reply_text("🔍 Consultando SUNAT...")
+    msg = await mensaje.reply_text("🔍 Consultando SUNAT...")
     data = api_request(f"sunat/ruc/{ruc_num}")
 
     if data and "error" not in data:
@@ -120,11 +125,12 @@ async def ruc(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 2. API RENIEC DNI
 async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args or len(context.args[0])!= 8:
-        await update.message.reply_text("❌ Uso: /dni 12345678")
+    mensaje = get_message(update)
+    if not context.args or len(context.args[0]) != 8:
+        await mensaje.reply_text("❌ Uso: /dni 12345678")
         return
     dni_num = context.args[0]
-    msg = await update.message.reply_text("🔍 Consultando RENIEC...")
+    msg = await mensaje.reply_text("🔍 Consultando RENIEC...")
     data = consulta_api(f"reniec/dni/{dni_num}")
 
     if data and "error" not in data:
@@ -141,11 +147,12 @@ async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 3. API BD AG
 async def ag(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    mensaje = get_message(update)
     if not context.args:
-        await update.message.reply_text("❌ Uso: /ag 12345678")
+        await mensaje.reply_text("❌ Uso: /ag 12345678")
         return
     dni_num = context.args[0]
-    msg = await update.message.reply_text("🔍 Buscando en BD AG...")
+    msg = await mensaje.reply_text("🔍 Buscando en BD AG...")
     data = api_request(f"bd/ag/{dni_num}")
     if data and "error" not in data:
         guardar_log("/ag", dni_num, data)
@@ -155,11 +162,12 @@ async def ag(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 4. API BD TELX
 async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    mensaje = get_message(update)
     if not context.args:
-        await update.message.reply_text("❌ Uso: /telx 999888777")
+        await mensaje.reply_text("❌ Uso: /telx 999888777")
         return
     num = context.args[0]
-    msg = await update.message.reply_text("🔍 Consultando número...")
+    msg = await mensaje.reply_text("🔍 Consultando número...")
     data = api_request(f"bd/telx/{num}")
     if data and "error" not in data:
         guardar_log("/telx", num, data)
@@ -169,27 +177,28 @@ async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 5. API BD OSIPTEL
 async def osiptel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args or len(context.args[0])!= 8:
-        await update.message.reply_text("❌ Uso: /osiptel 12345678")
+    mensaje = get_message(update)
+    if not context.args or len(context.args[0]) != 8:
+        await mensaje.reply_text("❌ Uso: /osiptel 12345678")
         return
     dni_num = context.args[0]
-    msg = await update.message.reply_text("🔍 Consultando OSIPTEL...")
+    msg = await mensaje.reply_text("🔍 Consultando OSIPTEL...")
     data = api_request(f"bd/osiptel/{dni_num}")
     if data and "error" not in data:
         guardar_log("/osiptel", dni_num, data)
         await msg.edit_text(f"```json\n{json.dumps(data['result'], indent=2, ensure_ascii=False)}```", parse_mode='Markdown')
     else:
         await msg.edit_text(f"❌ {data.get('error', 'Sin líneas registradas')}")
+        
+telegram_app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler('start', start))
-    app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(CommandHandler('ruc', ruc))
-    app.add_handler(CommandHandler('dni', dni))
-    app.add_handler(CommandHandler('ag', ag))
-    app.add_handler(CommandHandler('telx', telx))
-    app.add_handler(CommandHandler('osiptel', osiptel))
+telegram_app.add_handler(CommandHandler('start', start))
+telegram_app.add_handler(CallbackQueryHandler(button_handler))
+telegram_app.add_handler(CommandHandler('ruc', ruc))
+telegram_app.add_handler(CommandHandler('dni', dni))
+telegram_app.add_handler(CommandHandler('ag', ag))
+telegram_app.add_handler(CommandHandler('telx', telx))
+telegram_app.add_handler(CommandHandler('osiptel', osiptel))
 
 async def handle(request):
     return web.Response(text="Bot online")
