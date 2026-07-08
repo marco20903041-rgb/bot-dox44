@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime
 import threading
-from flask import flask
+from flask import Flask
 
 import httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
