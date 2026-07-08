@@ -1,5 +1,4 @@
 import os
-import asyncio
 import json
 from datetime import datetime
 import httpx
@@ -10,6 +9,21 @@ from telegram.ext import (
     CallbackQueryHandler,
     ContextTypes,
 )
+from flask import Flask
+import threading
+import os
+
+app_web = Flask(__name__)
+
+@app_web.route("/")
+def home():
+    return "Bot de Telegram funcionando ✅"
+
+def run_web():
+    app_web.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+    )
 
 BOT_TOKEN = os.getenv("TOKEN")
 API_TOKEN = os.getenv("API_TOKEN")
@@ -228,6 +242,7 @@ def main():
     app.add_handler(CommandHandler("telx", telx))
     app.add_handler(CallbackQueryHandler(callback))
     print("Bot con sistema de créditos iniciado...")
+    threading.Thread(target=run_web, daemon=True).start()
     app.run_polling()
 
 if __name__ == "__main__":
