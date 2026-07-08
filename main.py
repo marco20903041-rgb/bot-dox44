@@ -11,7 +11,6 @@ from telegram.ext import (
 )
 from flask import Flask
 import threading
-import os
 
 app_web = Flask(__name__)
 
@@ -246,5 +245,9 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
-    (main)
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
     
