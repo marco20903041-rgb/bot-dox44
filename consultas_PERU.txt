@@ -1,0 +1,26 @@
+2026-07-07 16:15:09.595527 /dni 20904032
+{"error": "{\"message\":\"Invalid token https://decolecta.com\"}"}
+2026-07-07 16:19:37.641334 /dni 20903041
+{"error": "{\"message\":\"Token invalido\"}"}
+2026-07-07 16:24:33.699914 /telx 991091129
+{"error": "Cannot GET /operator"}
+2026-07-07 16:47:26.951377 /telx 20903041
+{"error": "{\"success\":false,\"message\":\"Content-Type must be application\\/json\"}"}
+2026-07-07 16:51:19.468334 /telx 20903041
+{"error": "{\"success\":false,\"message\":\"Content-Type must be application\\/json\"}"}
+2026-07-07 16:51:32.393977 /telx 20903041
+{"error": "{\"success\":false,\"message\":\"Content-Type must be application\\/json\"}"}
+2026-07-07 17:25:34.859838 /cel 991091129
+{"success": true, "source": "CODART_X_API_V1", "data": {"titulares_encontrados": 4, "titulares": [{"titular": "ROSA AMELIA PAICO VELASCO", "operador": "CLARO", "telefono": "991091129", "dni_ruc": "45379505", "periodo": "202206", "plan": null, "n_ip": null, "correo": null, "empresa": null}, {"titular": "ELMER HUGO COLORADO CORREA", "operador": "CLARO", "telefono": "991091129", "dni_ruc": "45693630", "periodo": "202206", "plan": null, "n_ip": null, "correo": null, "empresa": null}, {"titular": "PAULA MELCHORA CASTILLA CONTRERAS", "operador": "UNKNOWN", "telefono": "991091129", "dni_ruc": "09647247", "periodo": "202012", "plan": null, "n_ip": null, "correo": null, "empresa": null}, {"titular": "ELMER HUGO COLORADO CORREA", "operador": "UNKNOWN", "telefono": "991091129", "dni_ruc": "45693630", "periodo": "000000", "plan": null, "n_ip": null, "correo": null, "empresa": null}]}}
+2026-07-07 20:55:09.612454 | /dni | 20903041
+{
+  "error": 415,
+  "detalle": "{\"success\":false,\"message\":\"Content-Type must be application\\/json\"}"
+}
+
+2026-07-07 20:55:56.627356 | /telx | 947780410
+{
+  "error": 415,
+  "detalle": "{\"success\":false,\"message\":\"Content-Type must be application\\/json\"}"
+}
+
