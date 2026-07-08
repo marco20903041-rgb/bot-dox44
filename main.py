@@ -246,3 +246,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # Levanta Flask y el bot al mismo tiempo
+    threading.Thread(target=run_flask).start()
+    run_bot()
