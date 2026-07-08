@@ -214,8 +214,6 @@ async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     
-    # Inicia el bot normal
-    import asyncio
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("register", register))
