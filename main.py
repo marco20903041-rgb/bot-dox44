@@ -1,9 +1,6 @@
 import os
 import json
 from datetime import datetime
-import threading
-from flask import Flask
-
 import httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -214,18 +211,8 @@ async def agv(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await hacer_consulta(update, context, "telx")
-# --- SERVIDOR WEB PARA QUE NO SE DUERMA ---
-app_web = Flask('')
 
-@app_web.route('/')
-def home():
-    return "Bot Data Peru esta vivo 24/7 ✅"
-
-def run_web():
-    app_web.run(host='0.0.0.0', port=10000)
 def main():
-    # Inicia el servidor web en un hilo aparte
-    threading.Thread(target=run_web).start()
     
     # Inicia el bot normal
     import asyncio
@@ -246,6 +233,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # Levanta Flask y el bot al mismo tiempo
-    threading.Thread(target=run_flask).start()
-    run_bot()
+    
