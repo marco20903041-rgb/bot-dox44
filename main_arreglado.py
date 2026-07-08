@@ -11,8 +11,8 @@ from telegram.ext import (
     ContextTypes,
 )
 
-BOT_TOKEN = os.getenv("TOKEN", "8597504104:AAGaHY1Dvgu528EmEo2B3maW7ZS1TXu7bcA")
-API_TOKEN = os.getenv("API_TOKEN", "bTzpTmMtNaQW0ROt1mcvesp9NHH6FUlSZnuF65plQs9P9n3hFnpxd4oiR7so")
+BOT_TOKEN = os.getenv("TOKEN")
+API_TOKEN = os.getenv("API_TOKEN")
 ARCHIVO_USUARIOS = "usuarios.json"
 ADMIN_ID = 8771814419 # <-- PON AQUI TU ID DE TELEGRAM
 
