@@ -201,7 +201,7 @@ async def hacer_consulta(update: Update, context: ContextTypes.DEFAULT_TYPE, tip
     guardar_log(f"/{tipo}", user_id, numero, respuesta)
 
     await update.message.reply_text(
-        f"`json\n{json.dumps(respuesta, indent=2, ensure_ascii=False)}\n```\n\n💎 Créditos restantes: {usuarios[user_id]['creditos']}",
+        f"```json\n{json.dumps(respuesta, indent=2, ensure_ascii=False)}\n```\n\n💎 Créditos restantes: {usuarios[user_id]['creditos']}",
         parse_mode="Markdown"
     )
 async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -231,5 +231,5 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    (main)
     
