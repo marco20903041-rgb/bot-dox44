@@ -13,7 +13,6 @@ ADMIN_ID = os.getenv("ADMIN_ID")
 ARCHIVO_USUARIOS = "usuarios.json"
 BOT_USER = "@OFICIAL_DATA_BOT"
 BOT_NAME = "⚜ DATA_PERU⚜"
-ARCHIVO_USUARIOS = "usuarios.json"
 BASE_URL = "https://api-codart.cgrt.org"
 
 PRECIOS = {
