@@ -4,7 +4,21 @@ import datetime
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
+from flask import Flask
+from threading import Thread
 
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot activo"
+
+def run():
+  app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 # ===== CONFIG =====
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -333,6 +347,7 @@ def main():
     app.add_handler(CommandHandler("denuncia", denuncia))
     app.add_handler(CommandHandler("nm", nm))
     print("Bot iniciado v2.1...")
+    keep_alive()
     app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
