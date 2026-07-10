@@ -2,6 +2,9 @@ import json
 import httpx
 import datetime
 import os
+import base64
+import io
+from PIL import image 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
@@ -39,7 +42,7 @@ BASE_URL = "https://api-codart.cgrt.org"
 
 PRECIOS = {
     "dni": 4, "agv": 8, "telx": 15, "ruc": 5,
-    "denuncia": 10, "placa": 12, "nm": 6, "hsoat": 8
+    "denuncia": 10, "placa": 12, "nm": 6, "hsoat": 8, "denpla": 30, "dnit" :5, "telp": 15
 }
 
 # ===== FUNCIONES BASE =====
@@ -100,9 +103,9 @@ SISTEMAS PERU"""
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
-        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telx")],
+        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefonos")],
         [InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
-        [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm")],
+        [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefonos")],
         [InlineKeyboardButton("PERFIL", callback_data="cmd_me"), InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -186,7 +189,33 @@ Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
 
 
 Página: 1/1""",
-        "cmd_telx": "Uso: /telx 987654321",
+        "cmd_telefonos": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ TELEFONIA
+✦ ──────────────── ✦
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 2
+ᴘᴀ́ɢɪɴᴀ ➾ 1/1
+
+
+1. TELX POR DNI
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /telp 44445555
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Líneas asociadas a un DNI
+
+2. SERUM MASIVO
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /telpcel 999888777
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Telefonia  online (A TIEMPO REAL)
+
+3. CONSULTA OPERADOR
+• ᴇsᴛᴀᴅᴏ ➾ MUY PRONTO [❌]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /fono 999888777
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Titular actual en tiempo real
+
+
+
+Página: 1/1""",
         "cmd_agv": "Uso: /agv 12345678",
         "cmd_denuncia": "Uso: /denuncia 12345678",
         "cmd_nm": "Uso: /nm JUAN PEREZ GOMEZ"
@@ -218,14 +247,60 @@ PERFIL DE ➾ {u.get("nombre", "Usuario")}
     await update.message.reply_text(texto)
 
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"COMPRAR CREDITOS\nYapeas y manda tu comprobante + tu ID: {update.effective_user.id}\nLuego contacta a @Xxxxxxx_Gatito_xxxxxxx")
+    await update.message.reply_text(f"CONSULTA PRECIOS {update.effective_user.id}\nLuego contacta a @Xxxxxxx_Gatito_xxxxxxx")
 
 async def staff(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("STAFF: @Xxxxxxx_Gatito_xxxxxxx - ADMIN")
+async def telp(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
+
+    ok, msg = await validar_creditos(user_id, "telp", usuarios)
+    if not ok: return await update.message.reply_text(msg)
+
+    if not context.args: return await update.message.reply_text("Uso: /telp 12345678")
+
+    dni_num = context.args[0]
+    m = await update.message.reply_text(f"🔎 Consultando TELÉFONOS de {dni_num}... -{PRECIOS['telp']} creditos")
+
+    url = f"{BASE_URL}/api/v1/consultas/fd/telp/{dni_num}"
+    data = await consultar_api_get(url)
+
+    if "error" in data: return await m.edit_text(f"Error: {data['error']}")
+    if not data.get("success"): return await m.edit_text(f"Error: {data.get('message','DNI no encontrado')}")
+
+    res = data.get("data", {})
+    lineas = res.get("lineas", [])
+    cantidad = res.get("lineas_encontradas")
+
+    # Descontar créditos
+    usuarios[user_id]["creditos"] -= PRECIOS["telp"]
+    usuarios[user_id]["consultas"] += 1
+    guardar_usuarios(usuarios)
+
+    # Armar mensaje
+    texto = f"""[#BOT DATA] ➾ TELEFONOS
+[🆔] DNI ➾ {dni_num}
+[📞] LINEAS ENCONTRADAS ➾ {cantidad}
+"""
+    for i, l in enumerate(lineas, 1):
+        periodo = l.get('periodo')
+        # Formatear periodo 202605 -> 05/2026
+        periodo_fmt = f"{periodo[4:6]}/{periodo[:4]}" if periodo and len(periodo)==6 else periodo
+
+        texto += f"""
+--- LINEA {i} ---
+[📱] NUMERO ➾ {l.get('telefono')}
+[📡] OPERADOR ➾ {l.get('operador')}
+[🏢] EMPRESA ➾ {l.get('empresa')}
+[📅] PERIODO ➾ {periodo_fmt}"""
+
+    texto += f"\n\n💰 Creditos: {usuarios[user_id]['creditos']}"
+    await m.edit_text(texto)
 
 async def addcreditos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    if user_id!= ADMIN_ID: return await update.message.reply_text("IMBECIL! no eres admin")
+    if user_id!= ADMIN_ID: return await update.message.reply_text("IMBECIL! no eres ADMI CARAJO,MATETE SI ES POSIBLE")
     if len(context.args)!= 2: return await update.message.reply_text("Uso: /addcreditos ID 20")
     target_id, cantidad = context.args[0], int(context.args[1])
     usuarios = cargar_usuarios()
@@ -259,8 +334,67 @@ Nac: {n.get('fecha')} | {n.get('edad')}
 Dir: {dom.get('direccion')} - {dom.get('distrito')}
 Padre: {info.get('padre')}
 Madre: {info.get('madre')}
+💰 Creditos: {usuarios[user_id]['creditos']}"""import base64
+import io
+from PIL import Image
+
+async def dnit(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
+
+    ok, msg = await validar_creditos(user_id, "dnit", usuarios)
+    if not ok: return await update.message.reply_text(msg)
+
+    if not context.args: return await update.message.reply_text("Uso: /dnit 12345678")
+
+    dni_num = context.args[0]
+    m = await update.message.reply_text(f"🔎 Consultando DNI-T de {dni_num}... -{PRECIOS['dnit']} creditos")
+
+    url = f"{BASE_URL}/api/v1/consultas/fd/dnit/{dni_num}"
+    data = await consultar_api_get(url)
+
+    if "error" in data: return await m.edit_text(f"Error: {data['error']}")
+    if not data.get("success"): return await m.edit_text(f"Error: {data.get('message','DNI no encontrado')}")
+
+    res = data.get("data", {})
+    d = res.get("dni", {}); n = res.get("nacimiento", {}); dom = res.get("domicilio", {}); info = res.get("informacion_general", {})
+    images = res.get("images", [])
+
+    # Descontar créditos
+    usuarios[user_id]["creditos"] -= PRECIOS["dnit"]
+    usuarios[user_id]["consultas"] += 1
+    guardar_usuarios(usuarios)
+
+    texto = f"""[#BOT DATA] ➾ DNI-T
+[🆔] DNI ➾ {d.get('completo')}
+[👤] NOMBRE ➾ {res.get('nombres')} {res.get('apellidos')}
+[⚧] GENERO ➾ {res.get('genero')}
+[📅] NACIMIENTO ➾ {n.get('fecha')} | {n.get('edad')}
+[📍] LUGAR ➾ {n.get('distrito')}, {n.get('provincia')}, {n.get('departamento')}
+[🏠] DIRECCION ➾ {dom.get('direccion')}
+[📚] EDUCACION ➾ {info.get('nivel_educativo')}
+[💍] ESTADO CIVIL ➾ {info.get('estado_civil')}
+[📏] ESTATURA ➾ {info.get('estatura')}
+[👨] PADRE ➾ {info.get('padre')}
+[👩] MADRE ➾ {info.get('madre')}
+[📄] EMISION ➾ {info.get('fecha_emision')} | CADUCA ➾ {info.get('fecha_caducidad')}
+[🩸] DONANTE ➾ {info.get('donante_organos')}
+
 💰 Creditos: {usuarios[user_id]['creditos']}"""
+
+    await m.edit_text(texto)
+
+    # Enviar las 4 fotos del DNI
+    for i, img_data in enumerate(images, 1):
+        try:
+            base64_str = img_data.get('data_uri', '').split(',')[1] # Quita "data:image/jpeg;base64,"
+            img_bytes = base64.b64decode(base64_str)
+            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=io.BytesIO(img_bytes), caption=f"Foto {i} de {d.get('completo')}")
+        except:
+            pass
     await m.edit_text(texto, parse_mode="Markdown")
+
+
 
 async def hsoat(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
@@ -352,7 +486,7 @@ async def denpla(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     texto += f"\n\n💰 Creditos: {usuarios[user_id]['creditos']}"
     await m.edit_text(texto)
-    
+
 async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
@@ -377,6 +511,53 @@ Operador: {t.get('operador')}
 Empresa: {t.get('empresa')}
 💰 Creditos: {usuarios[user_id]['creditos']}"""
     await m.edit_text(texto, parse_mode="Markdown")
+
+ADMIN_ID = ["123456789"] # Pon tu ID de Telegram aquí
+
+async def quitarcrd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+
+    # Validar que sea admin
+    if user_id not in ADMIN_ID:
+        return await update.message.reply_text("⛔ No tienes permiso fracasado")
+
+    if len(context.args) < 2:
+        return await update.message.reply_text("Uso: /quitarcrd ID_USUARIO CANTIDAD\nEjemplo: /quitarcrd 987654321 10")
+
+    target_id = context.args[0]
+    try:
+        cantidad = int(context.args[1])
+    except:
+        return await update.message.reply_text("La cantidad debe ser un número")
+
+    usuarios = cargar_usuarios()
+
+    if target_id not in usuarios:
+        return await update.message.reply_text(f"El usuario {target_id} no existe en la BD")
+
+    saldo_anterior = usuarios[target_id]["creditos"]
+    usuarios[target_id]["creditos"] -= cantidad
+
+    # Evitar que quede en negativo
+    if usuarios[target_id]["creditos"] < 0:
+        usuarios[target_id]["creditos"] = 0
+
+    guardar_usuarios(usuarios)
+
+    texto = f"""[#BOT DATA] ➾ CREDITOS QUITADOS
+
+[👤] USUARIO ➾ {target_id}
+[➖] QUITADOS ➾ {cantidad} Créditos
+[💰] SALDO ANTERIOR ➾ {saldo_anterior}
+[💰] SALDO ACTUAL ➾ {usuarios[target_id]['creditos']}"""
+
+    await update.message.reply_text(texto)
+
+    # Avisar al usuario afectado si quieres
+    try:
+        await context.bot.send_message(chat_id=target_id, text=f"⚠️ Se te quitaron {cantidad} créditos. Saldo actual: {usuarios[target_id]['creditos']}")
+    except:
+        pass
 
 async def placa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
@@ -476,13 +657,16 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("cmds", cmds))
     application.add_handler(CommandHandler("hsoat", hsoat))
+    application.add_handler(CommandHandler("dnit", dnit))
     application.add_handler(CommandHandler("register", register))
     application.add_handler(CommandHandler("me", me))
+    application.add_handler(CommandHandler("telp", telp))
     application.add_handler(CommandHandler("buy", buy))
     application.add_handler(CommandHandler("staff", staff))
     application.add_handler(CommandHandler("addcreditos", addcreditos))
     application.add_handler(CommandHandler("dni", dni))
     application.add_handler(CommandHandler("telx", telx))
+    application.add_handler(CommandHandler("denpla", denpla))
     application.add_handler(CommandHandler("placa", placa))
     application.add_handler(CommandHandler("agv", agv))
     application.add_handler(CommandHandler("denuncia", denuncia))
