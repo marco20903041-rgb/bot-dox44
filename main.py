@@ -119,7 +119,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     comandos = {
-        "cmd_dni": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
+        "cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
 ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
@@ -154,7 +154,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 • ʀᴇsᴜʟᴛᴀᴅᴏ ➾ dni por nombre y apellido 
 
 Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
-        "cmd_placa": "❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨   ❱ ➾ VEHICULARES
+        "cmd_vehiculos": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨   ❱ ➾ VEHICULARES
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 4
 ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
@@ -185,7 +185,7 @@ Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
 
 
 
-Página: 1/1",
+Página: 1/1""",
         "cmd_telx": "Uso: /telx 987654321",
         "cmd_agv": "Uso: /agv 12345678",
         "cmd_denuncia": "Uso: /denuncia 12345678",
