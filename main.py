@@ -2,8 +2,6 @@ import json
 import httpx
 import datetime
 import os
-import asyncio
-import nest_asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
@@ -306,8 +304,11 @@ async def nm(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await m.edit_text(texto, parse_mode="Markdown")
 
 # ===== MAIN =====
-async def run_bot():
+def main():
+    keep_alive()
+
     application = ApplicationBuilder().token(BOT_TOKEN).build()
+
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("cmds", cmds))
@@ -322,13 +323,9 @@ async def run_bot():
     application.add_handler(CommandHandler("agv", agv))
     application.add_handler(CommandHandler("denuncia", denuncia))
     application.add_handler(CommandHandler("nm", nm))
-    print("Bot iniciado v2.1...")
-    await application.run_polling(drop_pending_updates=True)
 
-def main():
-    keep_alive() # Inicia Flask
-    nest_asyncio.apply() # Arregla el error del event loop
-    asyncio.run(run_bot()) # Inicia el bot
+    print("Bot iniciado v2.1...")
+    application.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     main()
