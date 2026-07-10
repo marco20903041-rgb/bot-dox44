@@ -103,9 +103,9 @@ SISTEMAS PERU"""
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
-        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefonos")],
+        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"),
         [InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
-        [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefonos")],
+        [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")],
         [InlineKeyboardButton("PERFIL", callback_data="cmd_me"), InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -189,7 +189,7 @@ Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
 
 
 Página: 1/1""",
-        "cmd_telefonos": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ TELEFONIA
+        "cmd_telefono": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ TELEFONIA
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 2
 ᴘᴀ́ɢɪɴᴀ ➾ 1/1
@@ -671,9 +671,10 @@ def main():
     application.add_handler(CommandHandler("agv", agv))
     application.add_handler(CommandHandler("denuncia", denuncia))
     application.add_handler(CommandHandler("nm", nm))
+    application.add_handler(CommandHandler("quitarcrd", quitarcrd))
 
     print("Bot iniciado v2.1...")
     application.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
-    main()
+     main() 
