@@ -101,13 +101,12 @@ SISTEMAS PERU"""
     await update.message.reply_text(texto)
 
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [
+    keyboard =[
         [InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
-        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"),
+        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos")],
         [InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
         [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")],
         [InlineKeyboardButton("PERFIL", callback_data="cmd_me"), InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")]
-    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     texto = f"""[ PANEL DE COMANDOS ]
 
