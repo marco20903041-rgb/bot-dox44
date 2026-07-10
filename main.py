@@ -6,7 +6,14 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
 from threading import Thread
+import asyncio
 
+# Forzar la creación de un event loop si no existe en este hilo
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 app_flask = Flask('')
 
 @app_flask.route('/')
