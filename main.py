@@ -113,28 +113,29 @@ Selecciona un boton para ver el uso 👇"""
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer() 
-keyboard = [
+    await query.answer()
+    
+    keyboard = [
         [
-            InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), 
+            InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
             InlineKeyboardButton("RUC", callback_data="cmd_ruc")
         ],
         [
-            InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), 
+            InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"),
             InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")
         ],
         [
-            InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), 
+            InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"),
             InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")
         ],
         [
             InlineKeyboardButton("NOMBRE", callback_data="cmd_nombre")
         ],
         [
-            InlineKeyboardButton("PERFIL", callback_data="cmd_perfil"), 
+            InlineKeyboardButton("PERFIL", callback_data="cmd_perfil"),
             InlineKeyboardButton("COMPRAR", callback_data="cmd_comprar")
         ]
-    ]
+    ] # <- Asegúrate de poner este corchete de cierre aquí
 comandos = {"cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
