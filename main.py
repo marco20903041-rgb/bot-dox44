@@ -13,7 +13,7 @@ try:
     loop = asyncio.get_event_loop()
 except RuntimeError:
     loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    asyncio.set_event_loop(loop)git a
 app_flask = Flask('')
 
 @app_flask.route('/')
@@ -32,7 +32,7 @@ def keep_alive():
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 API_TOKEN = os.getenv("API_TOKEN")
 ADMIN_ID = str(os.getenv("ADMIN_ID")) # Lo pasamos a str para comparar
-ARCHIVO_USUARIOS = "usuarios.json"
+ARCHIVO_USUARIOS = os.getenv("ARCHIVO_USUARIOS") or "usuarios.json"
 BOT_USER = "@OFICIAL_DATA_BOT"
 BOT_NAME = "⚜ DATA_PERU⚜"
 BASE_URL = "https://api-codart.cgrt.org"
@@ -99,9 +99,9 @@ SISTEMAS PERU"""
 
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("DNI", callback_data="cmd_dni"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
-        [InlineKeyboardButton("PLACA", callback_data="cmd_placa"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telx")],
-        [InlineKeyboardButton("AGV", callback_data="cmd_agv"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
+        [InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
+        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telx")],
+        [InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
         [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm")],
         [InlineKeyboardButton("PERFIL", callback_data="cmd_me"), InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")]
     ]
@@ -119,8 +119,73 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     comandos = {
-        "cmd_dni": "Uso: /dni 12345678","cmd_ruc": "Uso: /ruc 20538856674",
-        "cmd_placa": "Uso: /placa D5G960",
+        "cmd_dni": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
+✦ ──────────────── ✦
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
+ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
+
+1. DNI ELECTRONICO
+• ᴇsᴛᴀᴅᴏ ➾ MUY PRONTO [❌]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /dnie 44445555
+• ᴘʀᴇᴄɪᴏ ➾ 15 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Dni electronico
+
+2. DNI VIRTUAL
+• ᴇsᴛᴀᴅᴏ ➾ MUY PRONTO [❌]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /dniva 78323583
+• ᴘʀᴇᴄɪᴏ ➾ 10 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ DNI virtual amarillo
+
+3. DNI VIRTUAL
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /dniv 46193350
+• ᴘʀᴇᴄɪᴏ ➾ 8 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ DNI virtual Azul
+
+4. DNI TARJETA 
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /dnit 44445555
+• ᴘʀᴇᴄɪᴏ ➾ 5 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ texto con foto y firma
+5. DNI POR NOMBRES 
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /nm juan quispe 
+• ᴘʀᴇᴄɪᴏ ➾ 4 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ dni por nombre y apellido 
+
+Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
+        "cmd_placa": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨   ❱ ➾ VEHICULARES
+✦ ──────────────── ✦
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 4
+ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
+
+1. PLACA TEXTO
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /placa ABC123
+• ᴘʀᴇᴄɪᴏ ➾ 2 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Detalles del vehículo en texto
+
+2. SOAT VIGENTE
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /soat ABC123
+• ᴘʀᴇᴄɪᴏ ➾ 8 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Consulta SOAT en PDF
+
+3. Datos por placa 
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /plat ABC123
+• ᴘʀᴇᴄɪᴏ ➾ 5  ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Consulta datos completos del vehículo y propietarios por placa.
+ 
+4. PLACA TEXTO
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /denpla ABC123
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Denuncia pdf a una placa 
+
+
+
+Página: 1/1""",
         "cmd_telx": "Uso: /telx 987654321",
         "cmd_agv": "Uso: /agv 12345678",
         "cmd_denuncia": "Uso: /denuncia 12345678",
@@ -147,20 +212,20 @@ async def me(update: Update, context: ContextTypes.DEFAULT_TYPE):
     texto = f"""[#BOT DATA] ➾ PERFIL DE USUARIO
 PERFIL DE ➾ {u.get("nombre", "Usuario")}
 [🙎‍♂️] ID ➾ {user_id}
-[👨🏻‍💻] USER ➾ @{u.get("username", "N/A")}
+[👨🏻‍💻] USER ➾ @{u.get("username", "")}
 [💰] CREDITOS ➾ {u.get('creditos', 0)}
 [📊] CONSULTAS ➾ {u.get('consultas', 0)}"""
     await update.message.reply_text(texto)
 
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"COMPRAR CREDITOS\nYapeas y manda tu comprobante + tu ID: {update.effective_user.id}\nLuego contacta a @XxxGatito")
+    await update.message.reply_text(f"COMPRAR CREDITOS\nYapeas y manda tu comprobante + tu ID: {update.effective_user.id}\nLuego contacta a @Xxxxxxx_Gatito_xxxxxxx")
 
 async def staff(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("STAFF: @XxxGatito - ADMIN")
+    await update.message.reply_text("STAFF: @Xxxxxxx_Gatito_xxxxxxx - ADMIN")
 
 async def addcreditos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    if user_id!= ADMIN_ID: return await update.message.reply_text("No tienes permiso")
+    if user_id!= ADMIN_ID: return await update.message.reply_text("IMBECIL! no eres admin")
     if len(context.args)!= 2: return await update.message.reply_text("Uso: /addcreditos ID 20")
     target_id, cantidad = context.args[0], int(context.args[1])
     usuarios = cargar_usuarios()
