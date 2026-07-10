@@ -4,7 +4,7 @@ import datetime
 import os
 import base64
 import io
-from PIL import image 
+from PIL import Image 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
@@ -115,27 +115,24 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     
-    keyboard = [
-        [
-            InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
-            InlineKeyboardButton("RUC", callback_data="cmd_ruc")
-        ],
-        [
-            InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"),
-            InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")
-        ],
-        [
-            InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"),
-            InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")
-        ],
-        [
-            InlineKeyboardButton("NOMBRE", callback_data="cmd_nombre")
-        ],
-        [
-            InlineKeyboardButton("PERFIL", callback_data="cmd_perfil"),
-            InlineKeyboardButton("COMPRAR", callback_data="cmd_comprar")
-        ]
-    ] # <- Asegúrate de poner este corchete de cierre aquí
+    reply_markup = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
+        InlineKeyboardButton("RUC", callback_data="cmd_ruc")
+    ],
+    [
+        InlineKeyboardButton("VEHÍCULOS", callback_data="cmd_vehiculos"),
+        InlineKeyboardButton("TELÉFONO", callback_data="cmd_telefono")
+    ],
+    [
+        InlineKeyboardButton("DENUNCIAS", callback_data="cmd_denuncia"),
+        InlineKeyboardButton("NOMBRES", callback_data="cmd_nm")
+    ],
+    [
+        InlineKeyboardButton("PERFIL", callback_data="cmd_me"),
+        InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")
+    ]
+])
 comandos = {"cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
