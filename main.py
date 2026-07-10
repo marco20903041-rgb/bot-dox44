@@ -101,13 +101,7 @@ SISTEMAS PERU"""
     await update.message.reply_text(texto)
 
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard =[
-        [InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), InlineKeyboardButton("RUC", callback_data="cmd_ruc")],
-        [InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos")],
-        [InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")],
-        [InlineKeyboardButton("NOMBRE", callback_data="cmd_nm"), InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")],
-        [InlineKeyboardButton("PERFIL", callback_data="cmd_me"), InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    )
     texto = f"""[ PANEL DE COMANDOS ]
 
 Precios por consulta:
@@ -119,9 +113,29 @@ Selecciona un boton para ver el uso 👇"""
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
-    comandos = {
-        "cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
+    await query.answer() 
+keyboard = [
+        [
+            InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"), 
+            InlineKeyboardButton("RUC", callback_data="cmd_ruc")
+        ],
+        [
+            InlineKeyboardButton("VEHICULOS", callback_data="cmd_vehiculos"), 
+            InlineKeyboardButton("TELEFONO", callback_data="cmd_telefono")
+        ],
+        [
+            InlineKeyboardButton("FAMILIARES", callback_data="cmd_familiares"), 
+            InlineKeyboardButton("DENUNCIA", callback_data="cmd_denuncia")
+        ],
+        [
+            InlineKeyboardButton("NOMBRE", callback_data="cmd_nombre")
+        ],
+        [
+            InlineKeyboardButton("PERFIL", callback_data="cmd_perfil"), 
+            InlineKeyboardButton("COMPRAR", callback_data="cmd_comprar")
+        ]
+    ]
+comandos = {"cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
 ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
