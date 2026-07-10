@@ -123,8 +123,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }
     if query.data in comandos: await query.message.reply_text(comandos[query.data])
     elif query.data == "cmd_me": await me(update, context)
-    elif query.data == "cmd_buy": await buy(update, context)
-    async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    elif query.data == "cmd_buy":
+        await buy(update, context)
+
+async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios =cargar_usuarios()
     if user_id in usuarios: return await update.message.reply_text("Ya estas registrado")
