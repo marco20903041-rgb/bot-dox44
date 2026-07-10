@@ -101,7 +101,7 @@ SISTEMAS PERU"""
     await update.message.reply_text(texto)
 
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    )
+    
     texto = f"""[ PANEL DE COMANDOS ]
 
 Precios por consulta:
