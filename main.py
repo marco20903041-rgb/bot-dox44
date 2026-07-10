@@ -39,7 +39,7 @@ BASE_URL = "https://api-codart.cgrt.org"
 
 PRECIOS = {
     "dni": 4, "agv": 8, "telx": 15, "ruc": 5,
-    "denuncia": 10, "placa": 12, "nm": 6
+    "denuncia": 10, "placa": 12, "nm": 6, "hsoat": 8
 }
 
 # ===== FUNCIONES BASE =====
@@ -167,9 +167,9 @@ Página: 1/1""","cmd_ruc": "Uso: /ruc 20538856674",
 
 2. SOAT VIGENTE
 • ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
-• ᴄᴏᴍᴀɴᴅᴏ ➾ /soat ABC123
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /hsoat ABC123
 • ᴘʀᴇᴄɪᴏ ➾ 8 ᴄʀᴇ‌ᴅɪᴛᴏs
-• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Consulta SOAT en PDF
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Consulta SOAT en por placa 
 
 3. Datos por placa 
 • ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
@@ -262,6 +262,97 @@ Madre: {info.get('madre')}
 💰 Creditos: {usuarios[user_id]['creditos']}"""
     await m.edit_text(texto, parse_mode="Markdown")
 
+async def hsoat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
+
+    ok, msg = await validar_creditos(user_id, "hsoat", usuarios)
+    if not ok: return await update.message.reply_text(msg)
+
+    if not context.args: return await update.message.reply_text("Uso: /hsoat ABC123")
+
+    placa = context.args[0].upper()
+    m = await update.message.reply_text(f"🔎 Consultando HSOAT de {placa}... -{PRECIOS['hsoat']} creditos")
+
+    url = f"{BASE_URL}/api/v1/consultas/fd/hsoat/{placa}"
+    data = await consultar_api_get(url)
+
+    if "error" in data: return await m.edit_text(f"Error: {data['error']}")
+    if not data.get("success"): return await m.edit_text(f"Error: {data.get('message','Placa no encontrada')}")
+
+    res = data.get("data", {})
+    placa_data = res.get("placa")
+    cantidad = res.get("cantidad_registros")
+    historial = res.get("historial", [])
+
+    # Descontar créditos
+    usuarios[user_id]["creditos"] -= PRECIOS["hsoat"]
+    usuarios[user_id]["consultas"] += 1
+    guardar_usuarios(usuarios)
+
+    # Armar mensaje
+    texto = f"""[#BOT DATA] ➾ HSOAT
+[🚗] PLACA ➾ {placa_data}
+[📊] REGISTROS ➾ {cantidad}
+"""
+    for i, h in enumerate(historial, 1):
+        texto += f"""
+--- SOAT {i} ---
+[🏢] COMPAÑIA ➾ {h.get('compania')}
+[✅] ESTADO ➾ {h.get('estado')}
+[📄] PÓLIZA ➾ {h.get('poliza')}
+[📅] VIGENCIA ➾ {h.get('fecha_inicio')} al {h.get('fecha_fin')}
+[👮] CONTROL ➾ {h.get('control_policial')}"""
+
+    texto += f"\n\n💰 Creditos: {usuarios[user_id]['creditos']}"
+    await m.edit_text(texto)
+
+async def denpla(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
+
+    ok, msg = await validar_creditos(user_id, "denpla", usuarios)
+    if not ok: return await update.message.reply_text(msg)
+
+    if not context.args: return await update.message.reply_text("Uso: /denpla ABC123")
+
+    placa = context.args[0].upper()
+    m = await update.message.reply_text(f"🔎 Consultando DENUNCIAS de {placa}... -{PRECIOS['denpla']} creditos")
+
+    url = f"{BASE_URL}/api/v1/consultas/fd/denpla/{placa}"
+    data = await consultar_api_get(url)
+
+    if "error" in data: return await m.edit_text(f"Error: {data['error']}")
+    if not data.get("success"): return await m.edit_text(f"Error: {data.get('message','Placa no encontrada')}")
+
+    res = data.get("data", {})
+    placa_data = res.get("placa")
+    cantidad = res.get("cantidad_denuncias")
+    denuncias = res.get("denuncias", [])
+
+    # Descontar créditos
+    usuarios[user_id]["creditos"] -= PRECIOS["denpla"]
+    usuarios[user_id]["consultas"] += 1
+    guardar_usuarios(usuarios)
+
+    # Armar mensaje
+    texto = f"""[#BOT DATA] ➾ DENUNCIAS POLICIALES
+[🚗] PLACA ➾ {placa_data}
+[🚨] TOTAL DENUNCIAS ➾ {cantidad}
+"""
+    for d in denuncias:
+        texto += f"""
+--- DENUNCIA {d.get('numero')} ---
+[📌] TIPO ➾ {d.get('tipo')}
+[🏛️] COMISARIA ➾ {d.get('comisaria')}
+[📄] N° ORDEN ➾ {d.get('n_orden')}
+[📅] F. HECHO ➾ {d.get('f_hecho')}
+[📅] F. REGISTRO ➾ {d.get('f_registro')}
+[📎] ARCHIVO ➾ {d.get('nombre')}"""
+
+    texto += f"\n\n💰 Creditos: {usuarios[user_id]['creditos']}"
+    await m.edit_text(texto)
+    
 async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
@@ -384,6 +475,7 @@ def main():
     application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("cmds", cmds))
+    application.add_handler(CommandHandler("hsoat", hsoat))
     application.add_handler(CommandHandler("register", register))
     application.add_handler(CommandHandler("me", me))
     application.add_handler(CommandHandler("buy", buy))
