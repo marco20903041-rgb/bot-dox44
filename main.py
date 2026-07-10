@@ -2,28 +2,31 @@ import json
 import httpx
 import datetime
 import os
+import asyncio
+import nest_asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
 from threading import Thread
 
-app = Flask('')
+app_flask = Flask('')
 
-@app.route('/')
+@app_flask.route('/')
 def home():
     return "Bot activo"
 
-def run():
-  app.run(host='0.0.0.0', port=8080)
+def run_flask():
+    port = int(os.environ.get("PORT", 8080))
+    app_flask.run(host='0.0.0.0', port=port)
 
 def keep_alive():
-    t = Thread(target=run)
+    t = Thread(target=run_flask)
     t.start()
-# ===== CONFIG =====
 
+# ===== CONFIG =====
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 API_TOKEN = os.getenv("API_TOKEN")
-ADMIN_ID = os.getenv("ADMIN_ID")
+ADMIN_ID = str(os.getenv("ADMIN_ID")) # Lo pasamos a str para comparar
 ARCHIVO_USUARIOS = "usuarios.json"
 BOT_USER = "@OFICIAL_DATA_BOT"
 BOT_NAME = "⚜ DATA_PERU⚜"
@@ -62,14 +65,14 @@ async def consultar_api_get(url):
     }
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.get(url, headers=headers) # AHORA ES GET
+            r = await client.get(url, headers=headers)
             return r.json()
     except Exception as e:
         return {"error": str(e)}
 
 # ===== COMANDOS GENERALES =====
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = f"""Hola 
+    texto = f"""Hola
 
 INFORMACION DEL BOT
 
@@ -121,10 +124,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data in comandos: await query.message.reply_text(comandos[query.data])
     elif query.data == "cmd_me": await me(update, context)
     elif query.data == "cmd_buy": await buy(update, context)
-
-async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    usuarios = cargar_usuarios()
+    usuarios =cargar_usuarios()
     if user_id in usuarios: return await update.message.reply_text("Ya estas registrado")
     usuarios[user_id] = {"creditos": 0, "consultas": 0, "nombre": update.effective_user.first_name, "username": update.effective_user.username, "fecha_registro": get_fecha(), "rol": "PENDIENTE", "plan": "FREE"}
     guardar_usuarios(usuarios)
@@ -161,7 +163,6 @@ async def addcreditos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Se agregaron {cantidad} creditos a {target_id}")
 
 # ===== COMANDOS DE CONSULTA CODART V1 =====
-
 async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
@@ -170,21 +171,15 @@ async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args: return await update.message.reply_text("Uso: /dni 12345678")
     dni_num = context.args[0]
     m = await update.message.reply_text("🔎 Consultando DNI... -4 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/dni/{dni_num}" # NUEVA URL
+    url = f"{BASE_URL}/api/v1/consultas/fd/dni/{dni_num}"
     data = await consultar_api_get(url)
-
     if "error" in data: return await m.edit_text(f"Error: {data['error']}")
     if not data.get("success"): return await m.edit_text(f"Error: {data.get('message','DNI no encontrado')}")
-
-    res = data.get("data", {})
-    d = res.get("dni", {}); n = res.get("nacimiento", {}); dom = res.get("domicilio", {}); info = res.get("informacion_general", {})
-
+    res = data.get("data", {}); d = res.get("dni", {}); n = res.get("nacimiento", {}); dom = res.get("domicilio", {}); info = res.get("informacion_general", {})
     usuarios[user_id]["creditos"] -= PRECIOS["dni"]
     usuarios[user_id]["consultas"] += 1
     guardar_usuarios(usuarios)
-
-    texto = f"""🔎 **CONSULTA DNI**
+    texto = f"""🔎 CONSULTA DNI
 DNI: {d.get('completo')}
 Nombre: {res.get('nombres')} {res.get('apellidos')}
 Genero: {res.get('genero')}
@@ -203,19 +198,15 @@ async def telx(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args: return await update.message.reply_text("Uso: /telx 987654321")
     num = context.args[0]
     m = await update.message.reply_text("📱 Consultando telefono... -15 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/telp/cel/{num}" # NUEVA URL
+    url =f"{BASE_URL}/api/v1/consultas/fd/telp/cel/{num}"
     data = await consultar_api_get(url)
-
     if not data.get("success"): return await m.edit_text("Numero no encontrado")
     res = data.get("data", {}); titulares = res.get("titulares", [])
-
     usuarios[user_id]["creditos"] -= PRECIOS["telx"]
     usuarios[user_id]["consultas"] += 1
     guardar_usuarios(usuarios)
-
     t = titulares[0] if titulares else {}
-    texto = f"""📱 **CONSULTA TELEFONO**
+    texto = f"""📱 CONSULTA TELEFONO
 Numero: {t.get('telefono')}
 Titular: {t.get('titular')}
 DNI/RUC: {t.get('dni_ruc')}
@@ -232,17 +223,13 @@ async def placa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args: return await update.message.reply_text("Uso: /placa D5G960")
     pla = context.args[0].upper()
     m = await update.message.reply_text("🚗 Consultando placa... -12 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/plat/{pla}" # NUEVA URL
+    url = f"{BASE_URL}/api/v1/consultas/fd/plat/{pla}"
     data = await consultar_api_get(url)
-
     if not data.get("success"): return await m.edit_text("Placa no encontrada")
     res = data.get("data", {}); car = res.get("caracteristicas", {}); prop = res.get("propietarios", [{}])[0]
-
     usuarios[user_id]["creditos"] -= PRECIOS["placa"]
     guardar_usuarios(usuarios)
-
-    texto = f"""🚗 **CONSULTA PLACA**
+    texto = f"""🚗 CONSULTA PLACA
 Placa: {res.get('placa')}
 Marca: {car.get('marca')} {car.get('modelo')}
 Estado: {car.get('estado')}
@@ -259,18 +246,14 @@ async def agv(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args: return await update.message.reply_text("Uso: /agv 12345678")
     dni_num = context.args[0]
     m = await update.message.reply_text("👨‍👩‍👧 Consultando arbol... -8 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/ag/{dni_num}" # NUEVA URL
+    url = f"{BASE_URL}/api/v1/consultas/fd/ag/{dni_num}"
     data = await consultar_api_get(url)
-
     if not data.get("success"): return await m.edit_text("No se encontraron familiares")
     res = data.get("data", {}); rel = res.get("relaciones", [])
-
     usuarios[user_id]["creditos"] -= PRECIOS["agv"]
     usuarios[user_id]["consultas"] += 1
     guardar_usuarios(usuarios)
-
-    texto = f"👨‍👩‍👧 **ARBOL GENEALOGICO**\nDNI: {res.get('consulta')}\nTotal: {res.get('familiares')}\n\n"
+    texto = f"👨‍👩‍👧 ARBOL GENEALOGICO\nDNI: {res.get('consulta')}\nTotal: {res.get('familiares')}\n\n"
     for f in rel:
         texto += f"{f.get('relacion')}: {f.get('nombres')} {f.get('apellidos')} | {f.get('dni')} | {f.get('verificacion')}\n"
     texto += f"\n💰 Creditos: {usuarios[user_id]['creditos']}"
@@ -284,17 +267,13 @@ async def denuncia(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args: return await update.message.reply_text("Uso: /denuncia 12345678")
     dni_num = context.args[0]
     m = await update.message.reply_text("🚨 Consultando denuncias... -10 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/den/{dni_num}" # NUEVA URL
+    url = f"{BASE_URL}/api/v1/consultas/fd/den/{dni_num}"
     data = await consultar_api_get(url)
-
     if not data.get("success"): return await m.edit_text("Sin denuncias")
     res = data.get("data", {}); den = res.get("denuncias", [])
-
     usuarios[user_id]["creditos"] -= PRECIOS["denuncia"]
-    guardar_usuarios(usuarios)
-
-    texto = f"🚨 **DENUNCIAS DNI:** {res.get('consulta')}\nTotal: {res.get('cantidad_denuncias')}\n\n"
+    guardar_usuarios(usuarios) # Arregle la identacion que estaba mal
+    texto = f"🚨 DENUNCIAS DNI: {res.get('consulta')}\nTotal: {res.get('cantidad_denuncias')}\n\n"
     for d in den[:3]:
         texto += f"#{d.get('numero')} {d.get('tipo')}\nOrden: {d.get('n_orden')}\nHecho: {d.get('f_hecho')}\nResumen: {d.get('resumen')}\n\n"
     texto += f"💰 Creditos: {usuarios[user_id]['creditos']}"
@@ -306,49 +285,48 @@ async def nm(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ok, msg = await validar_creditos(user_id, "nm", usuarios)
     if not ok: return await update.message.reply_text(msg)
     if len(context.args) < 2: return await update.message.reply_text("Uso: /nm JUAN PEREZ GOMEZ")
-
     nombre = context.args
     n1 = nombre[0]
     ap1 = nombre[1] if len(nombre) > 1 else ""
     ap2 = nombre[2] if len(nombre) > 2 else ""
     m = await update.message.reply_text(f"🔍 Buscando: {' '.join(nombre)}... -6 creditos")
-
-    url = f"{BASE_URL}/api/v1/consultas/fd/nm?n1={n1}&ap1={ap1}&ap2={ap2}" # NUEVA URL
+    url = f"{BASE_URL}/api/v1/consultas/fd/nm?n1={n1}&ap1={ap1}&ap2={ap2}"
     data = await consultar_api_get(url)
-
     if not data.get("success"): return await m.edit_text("No se encontro")
     res = data.get("data", {}); resultados = res.get("resultados", [])
-
     usuarios[user_id]["creditos"] -= PRECIOS["nm"]
     usuarios[user_id]["consultas"] += 1
     guardar_usuarios(usuarios)
-
-    texto = f"🔍 **RESULTADOS:** {res.get('cantidad_resultados')}\n\n"
+    texto = f"🔍 RESULTADOS: {res.get('cantidad_resultados')}\n\n"
     for i, p in enumerate(resultados[:5], 1):
         texto += f"{i}. {p.get('nombres')} {p.get('apellidos')} - DNI: {p.get('dni')} - {p.get('edad')} años\n"
     texto += f"\n💰 Creditos: {usuarios[user_id]['creditos']}"
     await m.edit_text(texto, parse_mode="Markdown")
 
 # ===== MAIN =====
-def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("cmds", cmds))
-    app.add_handler(CommandHandler("register", register))
-    app.add_handler(CommandHandler("me", me))
-    app.add_handler(CommandHandler("buy", buy))
-    app.add_handler(CommandHandler("staff", staff))
-    app.add_handler(CommandHandler("addcreditos", addcreditos))
-    app.add_handler(CommandHandler("dni", dni))
-    app.add_handler(CommandHandler("telx", telx))
-    app.add_handler(CommandHandler("placa", placa))
-    app.add_handler(CommandHandler("agv", agv))
-    app.add_handler(CommandHandler("denuncia", denuncia))
-    app.add_handler(CommandHandler("nm", nm))
+async def run_bot():
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
+    application.add_handler(CallbackQueryHandler(button_handler))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("cmds", cmds))
+    application.add_handler(CommandHandler("register", register))
+    application.add_handler(CommandHandler("me", me))
+    application.add_handler(CommandHandler("buy", buy))
+    application.add_handler(CommandHandler("staff", staff))
+    application.add_handler(CommandHandler("addcreditos", addcreditos))
+    application.add_handler(CommandHandler("dni", dni))
+    application.add_handler(CommandHandler("telx", telx))
+    application.add_handler(CommandHandler("placa", placa))
+    application.add_handler(CommandHandler("agv", agv))
+    application.add_handler(CommandHandler("denuncia", denuncia))
+    application.add_handler(CommandHandler("nm", nm))
     print("Bot iniciado v2.1...")
-    keep_alive()
-    app.run_polling(drop_pending_updates=True)
+    await application.run_polling(drop_pending_updates=True)
+
+def main():
+    keep_alive() # Inicia Flask
+    nest_asyncio.apply() # Arregla el error del event loop
+    asyncio.run(run_bot()) # Inicia el bot
 
 if __name__ == "__main__":
     main()
