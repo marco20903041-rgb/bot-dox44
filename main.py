@@ -224,21 +224,21 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == "volver_cmds":
         teclado = InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
-                InlineKeyboardButton("RUC", callback_data="cmd_ruc")
-            ],
-            [
-                InlineKeyboardButton("VEHÍCULOS", callback_data="cmd_vehiculos"),
-                InlineKeyboardButton("TELÉFONO", callback_data="cmd_telefono")
-            ],
-            [
-                InlineKeyboardButton("DENUNCIAS", callback_data="cmd_denuncia"),
-                InlineKeyboardButton("SUELDO", callback_data="cmd_sueldo")
-            ],
-            [
-                InlineKeyboardButton("FACIAL", callback_data="cmd_facial"),
-                InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")
-            ]
+    InlineKeyboardButton("╔═ 🪪 RENIEC ═╗", callback_data="cmd_reniec"),
+    InlineKeyboardButton("╔═ 🏢 RUC ═╗", callback_data="cmd_ruc")
+],
+[
+    InlineKeyboardButton("╔═ 🚘 VEHÍCULOS ═╗", callback_data="cmd_vehiculos"),
+    InlineKeyboardButton("╔═ 📱 TELÉFONO ═╗", callback_data="cmd_telefono")
+],
+[
+    InlineKeyboardButton("╔═ ⚖️ DENUNCIAS ═╗", callback_data="cmd_denuncia"),
+    InlineKeyboardButton("╔═ 💰 SUELDO ═╗", callback_data="cmd_sueldo")
+],
+[
+    InlineKeyboardButton("╔═ 🧬 FACIAL ═╗", callback_data="cmd_facial"),
+    InlineKeyboardButton("╔═ 💎 COMPRAR ═╗", callback_data="cmd_buy")
+]
         ])
 
         texto = f"""╔══════════════════════════════╗
@@ -400,7 +400,7 @@ tu cuenta, comunícate con:
 ✦ Activación inmediata
 ✦ Soporte personalizado
 
-╰━━━━━━━━━━━━━━━━━━━━━━╯"""
+╰━━━━━━━━━━━━━━━━━━━━━━╯""" 
 }
 
 
@@ -414,7 +414,21 @@ tu cuenta, comunícate con:
         )
 
     elif query.data == "cmd_facial":
-        await query.edit_message_text("Usa el comando /me para ver tu perfil.")
+        await query.edit_message_text("""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ FACIAL
+✦ ──────────────── ✦
+
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 1
+ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
+
+1. RECONOCIMIENTO FACIAL
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /facial
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Procesamiento de imagen facial
+
+✦ ──────────────── ✦
+
+Página: 1/1""")
 
     elif query.data == "cmd_buy":
         await query.edit_message_text(comandos["cmd_buy"])
@@ -494,12 +508,51 @@ async def denuncias(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ Error: {e}")
 
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"CONSULTA PRECIOS {update.effective_user.id}\nLuego contacta a @Xxxxxxx_Gatito_xxxxxxx")
+    await update.message.reply_text(f"""╔════════════════════╗
+      💎 PLANES PREMIUM 💎
+╚════════════════════╝
+
+💰 𝗖𝗥É𝗗𝗜𝗧𝗢𝗦
+
+🥉 100 Créditos ➜ S/ 10
+🥈 200 Créditos ➜ S/ 20
+🥇 400 Créditos ➜ S/ 30
+💠 500 Créditos ➜ S/ 40
+🚀 800 Créditos ➜ S/ 50
+👑 2,000 Créditos ➜ S/ 100
+💎 4,300 Créditos ➜ S/ 200
+
+━━━━━━━━━━━━━━━━━━
+
+♾️ 𝗜𝗟𝗜𝗠𝗜𝗧𝗔𝗗𝗢𝗦
+
+💥 7 DÍAS ➜ S/ 20
+⚡ 15 DÍAS ➜ S/ 35
+🔱 30 DÍAS ➜ S/ 60
+👑 60 DÍAS ➜ S/ 100
+
+━━━━━━━━━━━━━━━━━━
+
+💳 Aceptamos:
+🏦 Yape • Plin • Bcp
+
+╭━━━〔 💠 𝗣𝗔𝗚𝗢𝗦 𝗣𝗥𝗘𝗠𝗜𝗨𝗠 💠 〕━━━╮
+
+⚡ Para activar tu compra o recargar
+tu cuenta, comunícate con:
+
+👤 ➤ @Xxxxxxx_Gatito_xxxxxxx
+
+✦ Atención rápida""
+✦ Activación inmediata
+✦ Soporte personalizado
+
+╰━━━━━━━━━━━━━━━━━━━━━━╯""")
 
 async def staff(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("""╔════════════════════════════╗
+    await update.message.reply_text("""╔═════════════════════╗
         👑 𝗦𝗧𝗔𝗙𝗙 𝗢𝗙𝗜𝗖𝗜𝗔𝗟 👑
-╚════════════════════════════╝
+╚════════════════════╝
 
 🛡️ 𝗔𝗗𝗠𝗜𝗡𝗜𝗦𝗧𝗥𝗔𝗗𝗢𝗥 𝗣𝗥𝗜𝗡𝗖𝗜𝗣𝗔𝗟
 
@@ -525,9 +578,9 @@ contacta directamente al administrador.
 async def quitarcrd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     if user_id not in ADMIN_ID:
-        return await update.message.reply_text("""╔════════════════════════════╗
+        return await update.message.reply_text("""╔══════════════════════╗
         🚫 ACCESO DENEGADO 🚫
-╚════════════════════════════╝
+╚══════════════════════╝
 
 ⚠️ No cuentas con los permisos
 necesarios para ejecutar este comando.
@@ -566,9 +619,9 @@ contacta al administrador:
 
 async def addcreditos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    if user_id not in ADMIN_ID: return await update.message.reply_text("""╔════════════════════════════╗
+    if user_id not in ADMIN_ID: return await update.message.reply_text("""╔══════════════════════╗
         🚫 ACCESO DENEGADO 🚫
-╚════════════════════════════╝
+╚══════════════════════╝
 
 ⚠️ No cuentas con los permisos
 necesarios para ejecutar este comando.
@@ -578,14 +631,14 @@ reservado exclusivamente para el
 personal autorizado.
 
 ━━━━━━━━━━━━━━━━━━━━━━
+                                                                       
 
-👑 Si crees que se trata de un error,
-contacta al administrador:
+👑 Si desea usar este comando contacte con el administrador:
 
 ➜ @Xxxxxxx_Gatito_xxxxxxx""", parse_mode="HTML")
-    if len(context.args)!= 2: return await update.message.reply_text("""╔════════════════════════════╗
+    if len(context.args)!= 2: return await update.message.reply_text("""╔══════════════════════╗
       💎 AÑADIR CRÉDITOS 💎
-╚════════════════════════════╝
+╚══════════════════════╝
 
 📝 Uso del comando:
 
@@ -608,6 +661,143 @@ contacta al administrador:
     await update.message.reply_text(f"Se agregaron {cantidad} creditos a {target_id}")
 
 # ===== COMANDOS DE CONSULTA =====
+async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not update.message.photo:
+        await update.message.reply_text(
+            """
+╔═════════════════╗
+      🧬 COMANDO FACIAL
+╚═════════════════╝
+
+❌ No se recibió ninguna imagen.
+
+📌 Uso correcto:
+📷 Envía una foto junto al comando
+
+/facial
+
+━━━━━━━━━━━━━━━━━━━
+⚡ SISTEMA FACIAL ONLINE
+"""
+        )
+        return
+
+    try:
+        await update.message.reply_text(
+            """
+╔═════════════════╗
+    🧬 ESCÁNER FACIAL
+╚═════════════════╝
+
+🔄 Procesando imagen...
+🛰 Conectando al sistema...
+⚙️ Analizando coincidencias...
+
+━━━━━━━━━━━━━━━━━━
+"""
+        )
+
+        photo = update.message.photo[-1]
+
+        file = await context.bot.get_file(photo.file_id)
+        imagen = await file.download_as_bytearray()
+
+        url = "https://api-codart.cgrt.org/api/v1/consultas/fd/facial/top"
+
+        headers = {
+            "Authorization": f"Bearer {API_TOKEN}",
+            "Accept": "application/json"
+        }
+
+        files = {
+            "image_facial": (
+                "imagen.jpg",
+                imagen,
+                "image/jpeg"
+            )
+        }
+
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(
+                url,
+                headers=headers,
+                files=files
+            )
+
+        data = response.json()
+
+        if not data.get("success"):
+            await update.message.reply_text(
+                """
+╔════════════════╗
+     🧬 RESULTADO FACIAL
+╚════════════════╝
+
+❌ No se encontraron coincidencias.
+
+⚡ SISTEMA FINALIZADO
+"""
+            )
+            return
+
+        info = data["data"]
+
+        texto = f"""
+╔═════════════════╗
+     🧬 RESULTADO FACIAL
+╚═════════════════╝
+
+✅ Análisis completado
+
+🔎 Tipo:
+{info['tipo_resultado']}
+
+👥 Coincidencias:
+{info['coincidencias_mostradas']}
+
+━━━━━━━━━━━━━━━━━━
+"""
+
+        for i, persona in enumerate(info["coincidencias"], 1):
+            texto += f"""
+👤 COINCIDENCIA #{i}
+
+🪪 DNI:
+{persona['dni']}
+
+📛 Nombre:
+{persona['nombre']}
+
+🎯 Precisión:
+{persona['porcentaje']}%
+
+━━━━━━━━━━━━━━━━━━━
+"""
+
+        texto += """
+🟢 SISTEMA ONLINE
+⚡ CYBER DATA PERÚ
+"""
+
+        await update.message.reply_text(
+            texto,
+            parse_mode="HTML"
+        )
+
+    except Exception as e:
+        await update.message.reply_text(
+            f"""
+╔════════════════╗
+    ⚠️ ERROR
+╚════════════════╝
+
+❌ No se pudo completar la consulta.
+
+📝 Detalle:
+{e}
+"""
+        )
 async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios = cargar_usuarios(); usuarios.setdefault(user_id, {"creditos": 0, "consultas": 0})
