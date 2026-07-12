@@ -423,6 +423,7 @@ tu cuenta, comunícate con:
             reply_markup=volver
         )
 
+
     elif query.data == "cmd_facial":
         await query.edit_message_text("""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ FACIAL
 ✦ ──────────────── ✦
@@ -439,14 +440,6 @@ tu cuenta, comunícate con:
 ✦ ──────────────── ✦
 
 Página: 1/1""")
-    if query.data in comandos:
-        volver = InlineKeyboardMarkup([
-            [InlineKeyboardButton("⬅️ Volver al inicio", callback_data="volver_cmds")]
-        ])
-        await query.edit_message_text(
-            comandos[query.data],
-            reply_markup=volver
-        )
 
     elif query.data == "cmd_buy":
         await query.edit_message_text(comandos["cmd_buy"])
@@ -832,16 +825,7 @@ async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
 [👨] Padre: {info.get('padre')}
 [👩] Madre: {info.get('madre')}
 💰 Creditos: {usuarios[user_id]['creditos']}"""
-
     await m.edit_text(texto)
-    if query.data in comandos:
-        volver = InlineKeyboardMarkup([
-            [InlineKeyboardButton("⬅️ Volver al inicio", callback_data="volver_cmds")]
-        ])
-        await query.edit_message_text(
-            comandos[query.data],
-            reply_markup=volver
-        )
 
 async def dnit(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
@@ -929,14 +913,6 @@ async def denpla(update: Update, context: ContextTypes.DEFAULT_TYPE):
         texto += f"\n\n--- DENUNCIA {d.get('numero')} ---\n[📌] TIPO ➾ {d.get('tipo')}\n[🏛️] COMISARIA ➾ {d.get('comisaria')}"
     texto += f"\n\n💰 Creditos: {usuarios[user_id]['creditos']}"
     await m.edit_text(texto)
-    if query.data in comandos:
-        volver = InlineKeyboardMarkup([
-            [InlineKeyboardButton("⬅️ Volver al inicio", callback_data="volver_cmds")]
-        ])
-        await query.edit_message_text(
-            comandos[query.data],
-            reply_markup=volver
-        )
 
 async def telp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
