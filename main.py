@@ -80,25 +80,38 @@ async def consultar_api_get(url):
         return {"error": str(e)}
 
 # ===== COMANDOS GENERALES =====
-
-
-# IMPORTANTE: start debe ser async def, no sync def
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = """INFORMACION DEL BOT
+    texto = f"""⚜️ <b>¡BIENVENIDO A DATA PERÚ!</b> ⚜️
 
-- Nombre ➾ {BOT_NAME}
-- Usuario ➾ {BOT_USER}
-- Versión ➾ V1 
+━━━━━━━━━━━━━━━━━━
 
-COMANDOS GENERALES
+📌 <b>INFORMACIÓN DEL BOT</b>
 
-- Registra tu cuenta ➾ /register
-- Lista de comandos ➾ /cmds
-- Revisa tu perfil ➾ /me
-- Revisa el staff ➾ /staff
-- Compra Creditos/Dias ➾ /buy
+🏷️ <b>Nombre:</b> {BOT_NAME}
+👤 <b>Usuario:</b> {BOT_USER}
+🚀 <b>Versión:</b> v2.1 CODART V1
 
-EN CONSTANTE EVOLUCION"""
+━━━━━━━━━━━━━━━━━━
+
+📚 <b>COMANDOS GENERALES</b>
+
+📝 /register ➾ Registrar cuenta
+📖 /cmds ➾ Lista de comandos
+👤 /me ➾ Ver tu perfil
+🛡️ /staff ➾ Ver el staff
+💳 /buy ➾ Comprar créditos/días
+
+━━━━━━━━━━━━━━━━━━
+
+⚡ <b>EN CONSTANTE EVOLUCIÓN</b>
+
+Gracias por utilizar <b>DATA PERÚ</b>.
+"""
+
+    await update.message.reply_text(
+        texto,
+        parse_mode="HTML"
+    )
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     teclado = InlineKeyboardMarkup([
         [
