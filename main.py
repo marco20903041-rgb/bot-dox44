@@ -4,12 +4,14 @@ import datetime
 import os
 import base64
 import io
+from io import BytesIO
 from PIL import Image
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 from flask import Flask
 from threading import Thread
 import asyncio
+
 
 # Forzar la creación de un event loop si no existe en este hilo
 try:
@@ -42,7 +44,7 @@ BOT_NAME = "⚜ DATA_PERU⚜"
 BASE_URL = "https://api-codart.cgrt.org"
 
 PRECIOS = {
-    "dni": 4, "agv": 8, "telx": 15, "ruc": 5,
+    "dni": 4, "agv": 8, "telx": 15, "ruc": 5, "sueldo": 5,
     "denuncia": 10, "placa": 12, "nm": 6, "hsoat": 8, "denpla": 30, "dnit": 5, "telp": 15
 }
 
@@ -80,6 +82,57 @@ async def consultar_api_get(url):
         return {"error": str(e)}
 
 # ===== COMANDOS GENERALES =====
+async def den(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 1:
+        await update.message.reply_text(
+            "❌ Uso correcto:\n<code>/den 12345678</code>",
+            parse_mode="HTML"
+        )
+        return
+
+    dni = context.args[0]
+
+    if not (dni.isdigit() and len(dni) == 8):
+        await update.message.reply_text("❌ El DNI debe contener 8 dígitos.")
+        return
+
+    url = f"https://api-codart.cgrt.org/api/v1/consultas/fd/den/{dni}"
+
+    try:
+        data = await consultar_api(url)
+
+        if not data.get("success"):
+            await update.message.reply_text("❌ No se encontraron denuncias.")
+            return
+
+        info = data["data"]
+
+        mensaje = (
+            "🚨 <b>CONSULTA DE DENUNCIAS</b>\n\n"
+            f"🆔 <b>DNI:</b> <code>{info['consulta']}</code>\n"
+            f"📄 <b>Total:</b> {info['cantidad_denuncias']}\n\n"
+        )
+
+        for d in info["denuncias"]:
+            mensaje += (
+                f"<b>📌 Denuncia #{d['numero']}</b>\n"
+                f"👤 <b>Tipo:</b> {d['tipo']}\n"
+                f"📑 <b>N° Orden:</b> {d['n_orden']}\n"
+                f"📅 <b>Fecha Hecho:</b> {d['f_hecho']}\n"
+                f"🗂 <b>Registro:</b> {d['f_registro']}\n"
+                f"📋 <b>Condición:</b> {d['condicion']}\n"
+                f"📝 <b>Resumen:</b> {d['resumen']}\n"
+                "━━━━━━━━━━━━━━\n"
+            )
+
+        await update.message.reply_text(
+            mensaje,
+            parse_mode="HTML"
+        )
+
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error:\n<code>{e}</code>", parse_mode="HTML")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     texto = f"""⚜️ <b>¡BIENVENIDO A DATA PERÚ!</b> ⚜️
 
@@ -160,21 +213,41 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ],
             [
                 InlineKeyboardButton("DENUNCIAS", callback_data="cmd_denuncia"),
-                InlineKeyboardButton("NOMBRES", callback_data="cmd_nm")
+                InlineKeyboardButton("SUELDO", callback_data="cmd_sueldo")
             ],
             [
-                InlineKeyboardButton("PERFIL", callback_data="cmd_me"),
+                InlineKeyboardButton("FACIAL", callback_data="cmd_facial"),
                 InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")
             ]
         ])
 
-        texto = f"""[ PANEL DE COMANDOS ]
+        texto = f"""╔══════════════════════════════╗
+        ⚜️ 𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦 𝗣𝗘𝗥𝗨 ⚜️
+╚══════════════════════════════╝
 
-Precios por consulta:
-DNI: {PRECIOS['dni']} | RUC: {PRECIOS['ruc']} | PLACA: {PRECIOS['placa']} | TEL: {PRECIOS['telp']}
-AGV: {PRECIOS['agv']} | DENUNCIA: {PRECIOS['denuncia']} | NOMBRE: {PRECIOS['nm']}
+🚀 𝗟𝗔 𝗣𝗟𝗔𝗧𝗔𝗙𝗢𝗥𝗠𝗔 #𝟭 𝗗𝗘 𝗖𝗢𝗡𝗦𝗨𝗟𝗧𝗔𝗦
 
-Selecciona un boton para ver el uso 👇"""
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🛰️ 𝗔𝗖𝗖𝗘𝗗𝗘 𝗔 𝗧𝗢𝗗𝗢𝗦 𝗟𝗢𝗦 𝗦𝗘𝗥𝗩𝗜𝗖𝗜𝗢𝗦
+
+💎 Más de 150 servicios disponibles
+⚡ Consultas rápidas y precisas
+🛡️ Plataforma segura y estable
+🚀 Tecnología de última generación
+📡 Actualizaciones constantes
+🎯 Respuesta en pocos segundos
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🔎 𝗖𝗢𝗡𝗘𝗖𝗧𝗔 𝗟𝗔 𝗜𝗡𝗙𝗢𝗥𝗠𝗔𝗖𝗜Ó𝗡
+📂 Descubre relaciones y encuentra
+los datos que necesitas desde un
+solo lugar.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+👇 𝗦𝗘𝗟𝗘𝗖𝗖𝗜𝗢𝗡𝗔 𝗨𝗡𝗔 𝗖𝗔𝗧𝗘𝗚𝗢𝗥Í𝗔 👇"""
 
         await query.edit_message_text(
             texto,
@@ -220,7 +293,7 @@ Página: 1/1""",
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /hsoat ABC123
 • ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['hsoat']} créditos
 
-3. DENUNCIAS
+3. DENUNCIAS POR PLACA
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /denpla ABC123
 • ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['denpla']} créditos""",
 
@@ -234,9 +307,85 @@ Página: 1/1""",
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /telx 999888777
 • ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['telx']} créditos""",
 
-        "cmd_denuncia": f"Uso: /denuncia 12345678\nPrecio: {PRECIOS['denuncia']} créditos",
+        "cmd_denuncia": f"""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨   ❱ ➾ DENUNCIA
+✦ ──────────────── ✦
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 2
+ᴘᴀ́ɢɪɴᴀ ➾ 1/1
 
-        "cmd_nm": f"Uso: /nm JUAN PEREZ GOMEZ\nPrecio: {PRECIOS['nm']} créditos"
+1. DENUNCIAS EN PDF
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /denuncias 44445555
+• ᴘʀᴇᴄɪᴏ ➾ 30 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Lista de denuncias en PDF
+
+2. DENUNCIAS POR DNI
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /den 12345678
+• ᴘʀᴇᴄɪᴏ ➾ 15 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Consulta denuncias asociadas a un DNI.
+
+
+
+
+Página: 1/1""",
+
+        "cmd_sueldo": f"""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ SUELDOS
+✦ ──────────────── ✦
+ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 1
+ᴘᴀ́ɢɪɴᴀ ➾ 1/1
+
+1. CONSULTA DE SUELDOS
+• ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
+• ᴄᴏᴍᴀɴᴅᴏ ➾ /suel 12345678
+• ᴘʀᴇᴄɪᴏ ➾ 4 ᴄʀᴇ́ᴅɪᴛᴏs
+• ʀᴇsᴜʟᴛᴀᴅᴏ ➾ Información de sueldos registrados
+
+Página: 1/1""",
+        "cmd_buy": f"""╔════════════════════╗
+      💎 PLANES PREMIUM 💎
+╚════════════════════╝
+
+💰 𝗖𝗥É𝗗𝗜𝗧𝗢𝗦
+
+🥉 100 Créditos ➜ S/ 10
+🥈 200 Créditos ➜ S/ 20
+🥇 400 Créditos ➜ S/ 30
+💠 500 Créditos ➜ S/ 40
+🚀 800 Créditos ➜ S/ 50
+👑 2,000 Créditos ➜ S/ 100
+💎 4,300 Créditos ➜ S/ 200
+
+━━━━━━━━━━━━━━━━━━
+
+♾️ 𝗜𝗟𝗜𝗠𝗜𝗧𝗔𝗗𝗢𝗦
+
+💥 7 DÍAS ➜ S/ 20
+⚡ 15 DÍAS ➜ S/ 35
+🔱 30 DÍAS ➜ S/ 60
+👑 60 DÍAS ➜ S/ 100
+
+━━━━━━━━━━━━━━━━━━
+
+💳 Aceptamos:
+🏦 Yape • Plin • Bcp
+
+╭━━━〔 💠 𝗣𝗔𝗚𝗢𝗦 𝗣𝗥𝗘𝗠𝗜𝗨𝗠 💠 〕━━━╮
+
+⚡ Para activar tu compra o recargar
+tu cuenta, comunícate con:
+
+👤 ➤ @Xxxxxxx_Gatito_xxxxxxx
+
+✦ Atención rápida
+✦ Activación inmediata
+✦ Soporte personalizado
+
+╰━━━━━━━━━━━━━━━━━━━━━━╯"""
+
+    await update.message.reply_text(
+        texto,
+        parse_mode="HTML"
+    )"
     }
 
     if query.data in comandos:
@@ -248,7 +397,7 @@ Página: 1/1""",
             reply_markup=volver
         )
 
-    elif query.data == "cmd_me":
+    elif query.data == "cmd_facial":
         await me(update, context)
 
     elif query.data == "cmd_buy":
@@ -275,16 +424,108 @@ PERFIL DE ➾ {u.get("nombre", "Usuario")}
 [📊] CONSULTAS ➾ {u.get('consultas', 0)}"""
     await update.message.reply_text(texto)
 
+
+
+async def denuncias(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) != 1:
+        await update.message.reply_text("❌ Uso: /denuncias <DNI>")
+        return
+
+    dni = context.args[0]
+
+    if not dni.isdigit() or len(dni) != 8:
+        await update.message.reply_text("❌ El DNI debe tener 8 dígitos.")
+        return
+
+    url = f"https://api-codart.cgrt.org/api/v1/consultas/fd/denuncias/{dni}"
+
+    try:
+        data = await consultar_api(url)
+
+        if not data.get("success"):
+            await update.message.reply_text("❌ No se encontraron denuncias.")
+            return
+
+        info = data["data"]
+
+        await update.message.reply_text(
+            f"📂 Se encontraron {info['cantidad_denuncias']} denuncia(s).\n"
+            f"Enviando archivos..."
+        )
+
+        for den in info["denuncias"]:
+            pdf = den["data_uri"].split(",")[1]
+            archivo = BytesIO(base64.b64decode(pdf))
+            archivo.name = den["nombre"]
+
+            caption = (
+                f"🚨 <b>DENUNCIA #{den['numero']}</b>\n"
+                f"👤 <b>Tipo:</b> {den['tipo']}\n"
+                f"🏢 <b>Comisaría:</b> {den['comisaria']}\n"
+                f"📄 <b>Orden:</b> {den['n_orden']}\n"
+                f"📅 <b>Hecho:</b> {den['f_hecho']}\n"
+                f"📝 <b>Registro:</b> {den['f_registro']}"
+            )
+
+            await update.message.reply_document(
+                document=archivo,
+                filename=den["nombre"],
+                caption=caption,
+                parse_mode="HTML"
+            )
+
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error: {e}")
+
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"CONSULTA PRECIOS {update.effective_user.id}\nLuego contacta a @Xxxxxxx_Gatito_xxxxxxx")
 
 async def staff(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("STAFF: @Xxxxxxx_Gatito_xxxxxxx - ADMIN")
+    await update.message.reply_text("""╔════════════════════════════╗
+        👑 𝗦𝗧𝗔𝗙𝗙 𝗢𝗙𝗜𝗖𝗜𝗔𝗟 👑
+╚════════════════════════════╝
+
+🛡️ 𝗔𝗗𝗠𝗜𝗡𝗜𝗦𝗧𝗥𝗔𝗗𝗢𝗥 𝗣𝗥𝗜𝗡𝗖𝗜𝗣𝗔𝗟
+
+👤 Usuario:
+➜ @Xxxxxxx_Gatito_xxxxxxx
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ Servicios disponibles:
+• 💳 Venta de créditos
+• ♾️ Planes ilimitados
+• 🛠️ Soporte técnico
+• 📞 Atención personalizada
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+💬 Para compras, soporte o consultas,
+contacta directamente al administrador.
+
+🚀 Gracias por confiar en
+⚜️ 𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦 𝗗𝗔𝗧𝗔 𝗣𝗘𝗥𝗨 ⚜️""", parse_mode="HTML")
 
 async def quitarcrd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     if user_id not in ADMIN_ID:
-        return await update.message.reply_text("⛔ No tienes permiso")
+        return await update.message.reply_text("""╔════════════════════════════╗
+        🚫 ACCESO DENEGADO 🚫
+╚════════════════════════════╝
+
+⚠️ No cuentas con los permisos
+necesarios para ejecutar este comando.
+
+🔒 El comando <code>/quitarcrd</code> está
+reservado exclusivamente para el
+personal autorizado.
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+👑 Si crees que se trata de un error,
+contacta al administrador:
+
+➜ @Xxxxxxx_Gatito_xxxxxxx""", parse_mode="HTML")
     if len(context.args) < 2:
         return await update.message.reply_text("Uso: /quitarcrd ID_USUARIO CANTIDAD")
     target_id = context.args[0]
@@ -309,8 +550,40 @@ async def quitarcrd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def addcreditos(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
-    if user_id not in ADMIN_ID: return await update.message.reply_text("⛔ No eres ADMIN")
-    if len(context.args)!= 2: return await update.message.reply_text("Uso: /addcreditos ID 20")
+    if user_id not in ADMIN_ID: return await update.message.reply_text("""╔════════════════════════════╗
+        🚫 ACCESO DENEGADO 🚫
+╚════════════════════════════╝
+
+⚠️ No cuentas con los permisos
+necesarios para ejecutar este comando.
+
+🔒 El comando <code>/addcreditos</code> está
+reservado exclusivamente para el
+personal autorizado.
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+👑 Si crees que se trata de un error,
+contacta al administrador:
+
+➜ @Xxxxxxx_Gatito_xxxxxxx""", parse_mode="HTML")
+    if len(context.args)!= 2: return await update.message.reply_text("""╔════════════════════════════╗
+      💎 AÑADIR CRÉDITOS 💎
+╚════════════════════════════╝
+
+📝 Uso del comando:
+
+<code>/addcreditos ID CANTIDAD</code>
+
+📌 Ejemplo:
+<code>/addcreditos 123456789 100</code>
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+👤 ID ➜ ID numérico del usuario.
+💳 CANTIDAD ➜ Créditos a agregar.
+
+⚠️ Comando exclusivo para administradores.""", parse_mode="HTML")
     target_id, cantidad = context.args[0], int(context.args[1])
     usuarios = cargar_usuarios()
     usuarios.setdefault(target_id, {"creditos": 0, "consultas": 0})
@@ -480,6 +753,8 @@ def main():
     application.add_handler(CommandHandler("hsoat", hsoat))
     application.add_handler(CommandHandler("denpla", denpla))
     application.add_handler(CommandHandler("telp", telp))
+    application.add_handler(CommandHandler("den", den))
+    application.add_handler(CommandHandler("denuncias", denuncias))
     # agrega los demas handlers aqui
     print("Bot iniciado v2.1...")
     application.run_polling(drop_pending_updates=True)
