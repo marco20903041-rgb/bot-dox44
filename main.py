@@ -13,6 +13,11 @@ from threading import Thread
 import asyncio
 
 
+BTN_VOLVER = InlineKeyboardMarkup([
+    [InlineKeyboardButton("🏠 Volver al inicio", callback_data="menu_inicio")]
+])
+
+
 # Forzar la creación de un event loop si no existe en este hilo
 try:
     loop = asyncio.get_event_loop()
@@ -99,7 +104,7 @@ async def den(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = f"https://api-codart.cgrt.org/api/v1/consultas/fd/den/{dni}"
 
     try:
-        data = await consultar_api(url)
+        data = await consultar_api_get(url)
 
         if not data.get("success"):
             await update.message.reply_text("❌ No se encontraron denuncias.")
@@ -132,6 +137,11 @@ async def den(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     except Exception as e:
         await update.message.reply_text(f"❌ Error:\n<code>{e}</code>", parse_mode="HTML")
+        await update.message.reply_text(
+    texto,
+    parse_mode="HTML",
+    reply_markup=BTN_VOLVER
+)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     texto = f"""⚜️ <b>¡BIENVENIDO A DATA PERÚ!</b> ⚜️
@@ -470,7 +480,7 @@ async def denuncias(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = f"https://api-codart.cgrt.org/api/v1/consultas/fd/denuncias/{dni}"
 
     try:
-        data = await consultar_api(url)
+        data = await consultar_api_get(url)
 
         if not data.get("success"):
             await update.message.reply_text("❌ No se encontraron denuncias.")
@@ -663,6 +673,10 @@ personal autorizado.
 # ===== COMANDOS DE CONSULTA =====
 async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔙 Volver", callback_data="menu_consultas")]
+    ])
+
     if not update.message.photo:
         await update.message.reply_text(
             """
@@ -673,17 +687,19 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ❌ No se recibió ninguna imagen.
 
 📌 Uso correcto:
-📷 Envía una foto junto al comando
 
-/facial
+📷 Adjunta una imagen y escribe
+/facial como descripción.
 
 ━━━━━━━━━━━━━━━━━━━
 ⚡ SISTEMA FACIAL ONLINE
-"""
+""",
+            reply_markup=keyboard
         )
         return
 
     try:
+
         await update.message.reply_text(
             """
 ╔═════════════════╗
@@ -694,16 +710,14 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
 🛰 Conectando al sistema...
 ⚙️ Analizando coincidencias...
 
-━━━━━━━━━━━━━━━━━━
-"""
+━━━━━━━━━━━━━━━━━━━
+""",
+            reply_markup=keyboard
         )
 
         photo = update.message.photo[-1]
-
         file = await context.bot.get_file(photo.file_id)
         imagen = await file.download_as_bytearray()
-
-        url = "https://api-codart.cgrt.org/api/v1/consultas/fd/facial/top"
 
         headers = {
             "Authorization": f"Bearer {API_TOKEN}",
@@ -713,14 +727,14 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
         files = {
             "image_facial": (
                 "imagen.jpg",
-                imagen,
+                bytes(imagen),
                 "image/jpeg"
             )
         }
 
         async with httpx.AsyncClient(timeout=60) as client:
             response = await client.post(
-                url,
+                "https://api-codart.cgrt.org/api/v1/consultas/fd/facial/top",
                 headers=headers,
                 files=files
             )
@@ -730,14 +744,13 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not data.get("success"):
             await update.message.reply_text(
                 """
-╔════════════════╗
-     🧬 RESULTADO FACIAL
-╚════════════════╝
+╔═══════════════╗
+🧬 RESULTADO FACIAL
+╚═══════════════╝
 
 ❌ No se encontraron coincidencias.
-
-⚡ SISTEMA FINALIZADO
-"""
+""",
+                reply_markup=keyboard
             )
             return
 
@@ -745,44 +758,34 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         texto = f"""
 ╔═════════════════╗
-     🧬 RESULTADO FACIAL
+ RESULTADO FACIAL
 ╚═════════════════╝
 
 ✅ Análisis completado
 
-🔎 Tipo:
-{info['tipo_resultado']}
-
-👥 Coincidencias:
-{info['coincidencias_mostradas']}
-
-━━━━━━━━━━━━━━━━━━
-"""
-
-        for i, persona in enumerate(info["coincidencias"], 1):
-            texto += f"""
-👤 COINCIDENCIA #{i}
-
-🪪 DNI:
-{persona['dni']}
-
-📛 Nombre:
-{persona['nombre']}
-
-🎯 Precisión:
-{persona['porcentaje']}%
+🔎 Tipo: {info['tipo_resultado']}
+👥 Coincidencias: {info['coincidencias_mostradas']}
 
 ━━━━━━━━━━━━━━━━━━━
 """
 
-        texto += """
-🟢 SISTEMA ONLINE
-⚡ CYBER DATA PERÚ
+        for i, p in enumerate(info["coincidencias"], 1):
+            texto += f"""
+👤 COINCIDENCIA #{i}
+
+🪪 DNI: <code>{p['dni']}</code>
+📛 Nombre: {p['nombre']}
+🎯 Similitud: {p['porcentaje']}%
+
+━━━━━━━━━━━━━━━━━━━
 """
+
+        texto += "\n⚡ CYBER DATA PERÚ"
 
         await update.message.reply_text(
             texto,
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=keyboard
         )
 
     except Exception as e:
@@ -792,11 +795,9 @@ async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ⚠️ ERROR
 ╚════════════════╝
 
-❌ No se pudo completar la consulta.
-
-📝 Detalle:
 {e}
-"""
+""",
+            reply_markup=keyboard
         )
 async def dni(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
