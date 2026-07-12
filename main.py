@@ -385,8 +385,8 @@ tu cuenta, comunícate con:
     await update.message.reply_text(
         texto,
         parse_mode="HTML"
-    )"
-    }
+    )
+    
 
     if query.data in comandos:
         volver = InlineKeyboardMarkup([
