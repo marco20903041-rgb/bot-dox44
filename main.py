@@ -960,6 +960,7 @@ def main():
     application.add_handler(CommandHandler("denpla", denpla))
     application.add_handler(CommandHandler("telp", telp))
     application.add_handler(CommandHandler("den", den))
+    application.add_handler(CommandHandler("facial", facial))
     application.add_handler(CommandHandler("denuncias", denuncias))
     # agrega los demas handlers aqui
     print("Bot iniciado v2.1...")
