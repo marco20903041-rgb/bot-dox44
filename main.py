@@ -178,21 +178,21 @@ Gracias por utilizar <b>DATA PERÚ</b>.
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
     teclado = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
-            InlineKeyboardButton("RUC", callback_data="cmd_ruc")
-        ],
-        [
-            InlineKeyboardButton("VEHÍCULOS", callback_data="cmd_vehiculos"),
-            InlineKeyboardButton("TELÉFONO", callback_data="cmd_telefono")
-        ],
-        [
-            InlineKeyboardButton("DENUNCIAS", callback_data="cmd_denuncia"),
-            InlineKeyboardButton("NOMBRES", callback_data="cmd_nm")
-        ],
-        [
-            InlineKeyboardButton("PERFIL", callback_data="cmd_me"),
-            InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")
-        ]
+    InlineKeyboardButton("╔═ 🪪 RENIEC ═╗", callback_data="cmd_reniec"),
+    InlineKeyboardButton("╔═ 🏢 RUC ═╗", callback_data="cmd_ruc")
+],
+[
+    InlineKeyboardButton("╔═ 🚘 VEHÍCULOS ═╗", callback_data="cmd_vehiculos"),
+    InlineKeyboardButton("╔═ 📱 TELÉFONO ═╗", callback_data="cmd_telefono")
+],
+[
+    InlineKeyboardButton("╔═ ⚖️ DENUNCIAS ═╗", callback_data="cmd_denuncia"),
+    InlineKeyboardButton("╔═ 💰 SUELDO ═╗", callback_data="cmd_sueldo")
+],
+[
+    InlineKeyboardButton("╔═ 🧬 FACIAL ═╗", callback_data="cmd_facial"),
+    InlineKeyboardButton("╔═ 💎 COMPRAR ═╗", callback_data="cmd_buy")
+]
     ])
 
     texto = f"""╔══════════════════════════════╗
@@ -251,9 +251,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 ]
         ])
 
-        texto = f"""╔══════════════════════════════╗
+        texto = f"""╔══════════════════════╗
         ⚜️ 𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦 𝗣𝗘𝗥𝗨 ⚜️
-╚══════════════════════════════╝
+╚════════════════════════╝
 
 🚀 𝗟𝗔 𝗣𝗟𝗔𝗧𝗔𝗙𝗢𝗥𝗠𝗔 #𝟭 𝗗𝗘 𝗖𝗢𝗡𝗦𝗨𝗟𝗧𝗔𝗦
 
@@ -674,7 +674,7 @@ personal autorizado.
 async def facial(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔙 Volver", callback_data="menu_consultas")]
+        [InlineKeyboardButton("🔙 Volver al inicio", callback_data="volver_cmds")]
     ])
 
     if not update.message.photo:
