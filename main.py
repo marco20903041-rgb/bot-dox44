@@ -80,14 +80,15 @@ async def consultar_api_get(url):
         return {"error": str(e)}
 
 # ===== COMANDOS GENERALES =====
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = f"""Hola
 
-INFORMACION DEL BOT
+
+# IMPORTANTE: start debe ser async def, no sync def
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    texto = """INFORMACION DEL BOT
 
 - Nombre ➾ {BOT_NAME}
 - Usuario ➾ {BOT_USER}
-- Versión ➾ v2.1 CODART V1
+- Versión ➾ V1 
 
 COMANDOS GENERALES
 
@@ -97,12 +98,9 @@ COMANDOS GENERALES
 - Revisa el staff ➾ /staff
 - Compra Creditos/Dias ➾ /buy
 
-Servicio gestionado por
-SISTEMAS PERU"""
-    await update.message.reply_text(texto)
-
+EN CONSTANTE EVOLUCION"""
 async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    reply_markup = InlineKeyboardMarkup([
+    teclado = InlineKeyboardMarkup([
         [
             InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
             InlineKeyboardButton("RUC", callback_data="cmd_ruc")
@@ -128,59 +126,118 @@ DNI: {PRECIOS['dni']} | RUC: {PRECIOS['ruc']} | PLACA: {PRECIOS['placa']} | TEL:
 AGV: {PRECIOS['agv']} | DENUNCIA: {PRECIOS['denuncia']} | NOMBRE: {PRECIOS['nm']}
 
 Selecciona un boton para ver el uso 👇"""
-    await update.message.reply_text(texto, reply_markup=reply_markup)
+
+    await update.message.reply_text(texto, reply_markup=teclado)
+
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+
+    # Botón volver
+    if query.data == "volver_cmds":
+        teclado = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("RENIEC", callback_data="cmd_reniec"),
+                InlineKeyboardButton("RUC", callback_data="cmd_ruc")
+            ],
+            [
+                InlineKeyboardButton("VEHÍCULOS", callback_data="cmd_vehiculos"),
+                InlineKeyboardButton("TELÉFONO", callback_data="cmd_telefono")
+            ],
+            [
+                InlineKeyboardButton("DENUNCIAS", callback_data="cmd_denuncia"),
+                InlineKeyboardButton("NOMBRES", callback_data="cmd_nm")
+            ],
+            [
+                InlineKeyboardButton("PERFIL", callback_data="cmd_me"),
+                InlineKeyboardButton("COMPRAR", callback_data="cmd_buy")
+            ]
+        ])
+
+        texto = f"""[ PANEL DE COMANDOS ]
+
+Precios por consulta:
+DNI: {PRECIOS['dni']} | RUC: {PRECIOS['ruc']} | PLACA: {PRECIOS['placa']} | TEL: {PRECIOS['telp']}
+AGV: {PRECIOS['agv']} | DENUNCIA: {PRECIOS['denuncia']} | NOMBRE: {PRECIOS['nm']}
+
+Selecciona un boton para ver el uso 👇"""
+
+        await query.edit_message_text(
+            texto,
+            reply_markup=teclado
+        )
+        return
+
     comandos = {
         "cmd_reniec": """❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ RENIEC
 ✦ ──────────────── ✦
 ᴄᴏᴍᴀɴᴅᴏs ᴅɪsᴘᴏɴɪʙʟᴇs ➾ 5
-ᴘᴀ‌ɢɪɴᴀ ➾ 1/1
+ᴘᴀɢɪɴᴀ ➾ 1/1
 
 1. DNI TARJETA
 • ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /dnit 44445555
-• ᴘʀᴇᴄɪᴏ ➾ 5 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ 5 ᴄʀᴇ́ᴅɪᴛᴏs
 • ʀᴇsᴜʟᴛᴀᴅᴏ ➾ texto con foto y firma
+
 2. DNI POR NOMBRES
 • ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /nm juan quispe
-• ᴘʀᴇᴄɪᴏ ➾ 6 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ 6 ᴄʀᴇ́ᴅɪᴛᴏs
 • ʀᴇsᴜʟᴛᴀᴅᴏ ➾ dni por nombre y apellido
+
 3. DNI SIMPLE
 • ᴇsᴛᴀᴅᴏ ➾ OPERATIVO [✅]
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /dni 44445555
-• ᴘʀᴇᴄɪᴏ ➾ 4 ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ 4 ᴄʀᴇ́ᴅɪᴛᴏs
 
 Página: 1/1""",
+
         "cmd_ruc": "Uso: /ruc 20538856674",
+
         "cmd_vehiculos": f"""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ VEHICULARES
 ✦ ──────────────── ✦
+
 1. PLACA TEXTO
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /placa ABC123
-• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['placa']} ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['placa']} créditos
+
 2. SOAT VIGENTE
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /hsoat ABC123
-• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['hsoat']} ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['hsoat']} créditos
+
 3. DENUNCIAS
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /denpla ABC123
-• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['denpla']} ᴄʀᴇ‌ᴅɪᴛᴏs""",
+• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['denpla']} créditos""",
+
         "cmd_telefono": f"""❰ #𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦_𝗗𝗔𝗧𝗔_𝗣𝗘𝗥𝗨 ❱ ➾ TELEFONIA
+
 1. TELX POR DNI
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /telp 44445555
-• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['telp']} ᴄʀᴇ‌ᴅɪᴛᴏs
+• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['telp']} créditos
+
 2. TELX POR NUMERO
 • ᴄᴏᴍᴀɴᴅᴏ ➾ /telx 999888777
-• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['telx']} ᴄʀᴇ‌ᴅɪᴛᴏs""",
-        "cmd_denuncia": f"Uso: /denuncia 12345678 | Precio: {PRECIOS['denuncia']} cr",
-        "cmd_nm": f"Uso: /nm JUAN PEREZ GOMEZ | Precio: {PRECIOS['nm']} cr"
+• ᴘʀᴇᴄɪᴏ ➾ {PRECIOS['telx']} créditos""",
+
+        "cmd_denuncia": f"Uso: /denuncia 12345678\nPrecio: {PRECIOS['denuncia']} créditos",
+
+        "cmd_nm": f"Uso: /nm JUAN PEREZ GOMEZ\nPrecio: {PRECIOS['nm']} créditos"
     }
+
     if query.data in comandos:
-        await query.message.reply_text(comandos[query.data])
+        volver = InlineKeyboardMarkup([
+            [InlineKeyboardButton("⬅️ Volver al inicio", callback_data="volver_cmds")]
+        ])
+        await query.edit_message_text(
+            comandos[query.data],
+            reply_markup=volver
+        )
+
     elif query.data == "cmd_me":
         await me(update, context)
+
     elif query.data == "cmd_buy":
         await buy(update, context)
 
@@ -188,7 +245,7 @@ async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     usuarios = cargar_usuarios()
     if user_id in usuarios: return await update.message.reply_text("Ya estas registrado")
-    usuarios[user_id] = {"creditos": 0, "consultas": 0, "nombre": update.effective_user.first_name, "username": update.effective_user.username, "fecha_registro": get_fecha(), "rol": "PENDIENTE", "plan": "FREE"}
+    usuarios[user_id] = {"creditos": 0, "nombre": update.effective_user.first_name, "username": update.effective_user.username, "fecha_registro": get_fecha(), "rol": "PENDIENTE", "plan": "FREE"}
     guardar_usuarios(usuarios)
     await update.message.reply_text(f"Registro exitoso! Bienvenido {update.effective_user.first_name}")
 
