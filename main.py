@@ -185,13 +185,33 @@ async def cmds(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
     ])
 
-    texto = f"""[ PANEL DE COMANDOS ]
+    texto = f"""╔══════════════════════════════╗
+        ⚜️ 𝗦𝗜𝗦𝗧𝗘𝗠𝗔𝗦 𝗣𝗘𝗥𝗨 ⚜️
+╚══════════════════════════════╝
 
-Precios por consulta:
-DNI: {PRECIOS['dni']} | RUC: {PRECIOS['ruc']} | PLACA: {PRECIOS['placa']} | TEL: {PRECIOS['telp']}
-AGV: {PRECIOS['agv']} | DENUNCIA: {PRECIOS['denuncia']} | NOMBRE: {PRECIOS['nm']}
+🚀 𝗟𝗔 𝗣𝗟𝗔𝗧𝗔𝗙𝗢𝗥𝗠𝗔 #𝟭 𝗗𝗘 𝗖𝗢𝗡𝗦𝗨𝗟𝗧𝗔𝗦
 
-Selecciona un boton para ver el uso 👇"""
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🛰️ 𝗔𝗖𝗖𝗘𝗗𝗘 𝗔 𝗧𝗢𝗗𝗢𝗦 𝗟𝗢𝗦 𝗦𝗘𝗥𝗩𝗜𝗖𝗜𝗢𝗦
+
+💎 Más de 150 servicios disponibles
+⚡ Consultas rápidas y precisas
+🛡️ Plataforma segura y estable
+🚀 Tecnología de última generación
+📡 Actualizaciones constantes
+🎯 Respuesta en pocos segundos
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🔎 𝗖𝗢𝗡𝗘𝗖𝗧𝗔 𝗟𝗔 𝗜𝗡𝗙𝗢𝗥𝗠𝗔𝗖𝗜Ó𝗡
+📂 Descubre relaciones y encuentra
+los datos que necesitas desde un
+solo lugar.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+👇 𝗦𝗘𝗟𝗘𝗖𝗖𝗜𝗢𝗡𝗔 𝗨𝗡𝗔 𝗖𝗔𝗧𝗘𝗚𝗢𝗥Í𝗔 👇"""
 
     await update.message.reply_text(texto, reply_markup=teclado)
 
@@ -384,12 +404,6 @@ tu cuenta, comunícate con:
 }
 
 
-    await update.message.reply_text(
-        texto,
-        parse_mode="HTML"
-        )
-
-
     if query.data in comandos:
         volver = InlineKeyboardMarkup([
             [InlineKeyboardButton("⬅️ Volver al inicio", callback_data="volver_cmds")]
@@ -400,10 +414,10 @@ tu cuenta, comunícate con:
         )
 
     elif query.data == "cmd_facial":
-        await me(update, context)
+        await query.edit_message_text("Usa el comando /me para ver tu perfil.")
 
     elif query.data == "cmd_buy":
-        await buy(update, context)
+        await query.edit_message_text(comandos["cmd_buy"])
 
 async def register(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
